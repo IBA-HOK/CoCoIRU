@@ -1,14 +1,23 @@
 import sqlite3
 
-def create_database_with_foreign_keys():
+def create_database_with_all_tables():
+    """
+    指定された全スキーマでSQLite3データベースとテーブルを作成します。
+    PRIMARY KEY（主キー）および FOREIGN KEY（外部キー）制約を含みます。
+    """
     db_name = 'database.db'
     
     try:
+        # データベースに接続
         conn = sqlite3.connect(db_name)
         cursor = conn.cursor()
+        
+        # --- SQLiteで外部キー制約を有効にする ---
         cursor.execute("PRAGMA foreign_keys = ON;")
         
         print(f"データベース '{db_name}' に接続し、外部キー制約を有効にしました。")
+
+        # --- テーブル作成（依存関係の順に作成）---
 
         # 1. 特記事項テーブル (Special_notes) 
         cursor.execute("""
@@ -19,7 +28,7 @@ def create_database_with_foreign_keys():
         );
         """)
 
-        # 2. 支援品目テーブル (Items)
+        # 2. 支援品目テーブル (Items) 
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Items (
             items_id INTEGER PRIMARY KEY,
@@ -29,20 +38,29 @@ def create_database_with_foreign_keys():
             description TEXT
         );
         """)
+        
+        # 3. (追加) 避難所情報テーブル (Shelter_info) 
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Shelter_info (
+            shelter_info INTEGER PRIMARY KEY,
+            latitude REAL,
+            longitude REAL,
+            notes TEXT,
+            created_at TEXT
+        );
+        """)
 
-        # 3. メンバーテーブル (Members) - Special_notes に依存
+        # 4. メンバーテーブル (Members) - Special_notes に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Members (
             member_id INTEGER PRIMARY KEY,
             special_notes_id INTEGER,
             created_at TEXT,
-            
-            -- 外部キー制約: special_notes_id は Special_notes テーブルを参照
             FOREIGN KEY (special_notes_id) REFERENCES Special_notes (special_notes_id)
         );
         """)
         
-        # 4. 要請内容テーブル (Request_content) - Items に依存
+        # 5. 要請内容テーブル (Request_content) - Items に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Request_content (
             request_content_id INTEGER PRIMARY KEY,
@@ -50,13 +68,11 @@ def create_database_with_foreign_keys():
             other_note TEXT,
             number INTEGER,
             created_at TEXT,
-            
-            -- 外部キー制約: items_id は Items テーブルを参照
             FOREIGN KEY (items_id) REFERENCES Items (items_id)
         );
         """)
 
-        # 5. コミュニティテーブル (Communities) - Members に依存
+        # 6. コミュニティテーブル (Communities) - Members に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Communities (
             community_id INTEGER PRIMARY KEY,
@@ -66,13 +82,25 @@ def create_database_with_foreign_keys():
             longitude REAL,
             member_count INTEGER,
             created_at TEXT,
-            
-            -- 外部キー制約: member_id は Members テーブルを参照
             FOREIGN KEY (member_id) REFERENCES Members (member_id)
         );
         """)
 
-        # 6. 支援物資要請テーブル (Support_Request) - Communities と Request_content に依存
+        # 7. (追加) 避難所テーブル (Shelter) - Shelter_info と Communities に依存
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Shelter (
+            shelter_id INTEGER PRIMARY KEY,
+            shelter_info INTEGER,
+            community_id INTEGER,
+            created_at TEXT,
+            
+            -- 外部キー制約
+            FOREIGN KEY (shelter_info) REFERENCES Shelter_info (shelter_info),
+            FOREIGN KEY (community_id) REFERENCES Communities (community_id)
+        );
+        """)
+
+        # 8. 支援物資要請テーブル (Support_Request) - Communities と Request_content に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Support_Request (
             request_id INTEGER PRIMARY KEY,
@@ -80,18 +108,14 @@ def create_database_with_foreign_keys():
             request_content_id INTEGER,
             status TEXT,
             created_at TEXT,
-            
-            -- 外部キー制約: community_id は Communities テーブルを参照
             FOREIGN KEY (community_id) REFERENCES Communities (community_id),
-            
-            -- 外部キー制約: request_content_id は Request_content テーブルを参照
             FOREIGN KEY (request_content_id) REFERENCES Request_content (request_content_id)
         );
         """)
 
         # 変更をコミット（保存）
         conn.commit()
-        print("テーブルが正常に作成または確認されました。")
+        print("全8テーブルが正常に作成または確認されました。")
 
     except sqlite3.Error as e:
         print(f"データベース操作中にエラーが発生しました: {e}")
@@ -104,4 +128,4 @@ def create_database_with_foreign_keys():
 
 # --- スクリプトの実行 ---
 if __name__ == "__main__":
-    create_database_with_foreign_keys()
+    create_database_with_all_tables()
