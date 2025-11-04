@@ -26,3 +26,7 @@ vite.config.ts.timestamp-*
 *.pyo
 *.pyd
 .pytest_cache/
+
+#DB
+*.db
+*.sqlite3
