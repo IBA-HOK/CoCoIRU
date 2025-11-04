@@ -1,6 +1,8 @@
 {
 	"/": [],
 	"/government": [],
+	"/government/communitielist": [],
+	"/government/requestlist": [],
 	"/nearby": [],
 	"/request": []
 }
