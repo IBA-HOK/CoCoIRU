@@ -12,7 +12,7 @@
             <h2>コミュニティ一覧</h2>
         </a>
 
-        <a href="/government/requestiist" class="action-button right">
+        <a href="/government/requestlist" class="action-button right">
             <h2>支援要請一覧</h2>
         </a>
     </section>
