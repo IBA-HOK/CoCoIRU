@@ -27,7 +27,7 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/government" | "/government/communitielist" | "/government/requestlist" | "/nearby" | "/request";
+		RouteId(): "/" | "/government" | "/government/communitielist" | "/government/requestlist" | "/nearby" | "/request" | "/request/confirm";
 		RouteParams(): {
 			
 		};
@@ -37,9 +37,10 @@ declare module "$app/types" {
 			"/government/communitielist": Record<string, never>;
 			"/government/requestlist": Record<string, never>;
 			"/nearby": Record<string, never>;
-			"/request": Record<string, never>
+			"/request": Record<string, never>;
+			"/request/confirm": Record<string, never>
 		};
-		Pathname(): "/" | "/government" | "/government/" | "/government/communitielist" | "/government/communitielist/" | "/government/requestlist" | "/government/requestlist/" | "/nearby" | "/nearby/" | "/request" | "/request/";
+		Pathname(): "/" | "/government" | "/government/" | "/government/communitielist" | "/government/communitielist/" | "/government/requestlist" | "/government/requestlist/" | "/nearby" | "/nearby/" | "/request" | "/request/" | "/request/confirm" | "/request/confirm/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/robots.txt" | string & {};
 	}

@@ -4,5 +4,6 @@
 	"/government/communitielist": [],
 	"/government/requestlist": [],
 	"/nearby": [],
-	"/request": []
+	"/request": [],
+	"/request/confirm": []
 }

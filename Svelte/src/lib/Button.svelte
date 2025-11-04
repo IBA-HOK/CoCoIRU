@@ -15,7 +15,6 @@
       border-radius: 8px;
       transition: all 0.2s ease;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      
       text-align: center;
       font-weight: bold; 
       font-size: 1.5rem;
