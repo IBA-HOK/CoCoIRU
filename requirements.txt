@@ -1,0 +1,15 @@
+# Webフレームワーク
+fastapi
+
+# ASGIサーバー
+uvicorn
+
+# データベース (ORM)
+sqlalchemy
+
+# データバリデーション (スキーマ)
+pydantic
+
+# テスト用
+pytest
+httpx
