@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Button from '$lib/Button.svelte';
+	import cartIcon from '$lib/assets/shopping_cart.svg';
 
 	// 申請物資のリスト
 	let items = [
@@ -16,8 +17,13 @@
 
 	// 最大値は99
 	const maxQuantity = 100;
+	// $: は、依存する変数(items)が変更されるたびに自動で再計算します
+  $: totalSelected = items.reduce((sum, item) => sum + item.selectedValue, 0);
 
 	// ボタン
+	function othersButtonClick() {
+		goto('/request/others');
+	}
 	function homeButtonClick() {
 		goto('/');
 	}
@@ -27,6 +33,11 @@
 </script>
 
 <h1>申請画面</h1>
+<img src={cartIcon} alt="ショッピングカート" class=shopping_cart/>
+<div class=confirm>
+	<h2>注文確認：</h2>
+	<h2>{totalSelected}</h2>
+</div>	
 <div class="button-grid">
 	{#each items as item}
 		<div class="grid-item-container">
@@ -42,6 +53,7 @@
 		</div>
 	{/each}
 </div>
+	<Button text="その他申請" on:click={othersButtonClick} />
 <div class="request_footer">
 	<Button text="はじめに戻る" on:click={homeButtonClick} />
 	<Button text="注文確定" on:click={confirmButtonClick} />
@@ -53,6 +65,16 @@
 </details>
 
 <style>
+	.shopping_cart {
+		width: 200px;
+		height: auto;
+		display: block;
+		margin: 0 auto;
+	}	
+	.confirm {
+		display: flex;
+		justify-content: center;
+	}
 	.button-grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
