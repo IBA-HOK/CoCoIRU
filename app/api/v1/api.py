@@ -7,7 +7,8 @@ from app.api.v1.endpoints import (
     request_content, 
     communities, 
     shelter, 
-    support_request
+    support_request,
+    gnss
 )
 
 api_router = APIRouter()
@@ -28,3 +29,5 @@ api_router.include_router(communities.router, prefix="/communities", tags=["Comm
 api_router.include_router(shelter.router, prefix="/shelter", tags=["Shelter"])
 # 8. SupportRequest
 api_router.include_router(support_request.router, prefix="/support_requests", tags=["Support Requests"])
+# 9. Additional Endpoints
+api_router.include_router(gnss.router, prefix="/gnss", tags=["GNSS"])
