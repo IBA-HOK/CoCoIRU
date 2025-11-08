@@ -8,18 +8,25 @@ export const nodes = [
 	() => import('./nodes/4'),
 	() => import('./nodes/5'),
 	() => import('./nodes/6'),
-	() => import('./nodes/7')
+	() => import('./nodes/7'),
+	() => import('./nodes/8'),
+	() => import('./nodes/9'),
+	() => import('./nodes/10'),
+	() => import('./nodes/11')
 ];
 
 export const server_loads = [];
 
 export const dictionary = {
-		"/": [2],
-		"/government": [3],
-		"/government/communitielist": [4],
-		"/government/requestlist": [5],
-		"/nearby": [6],
-		"/request": [7]
+		"/": [3],
+		"/government": [4,[2]],
+		"/government/communitielist": [5,[2]],
+		"/government/map": [6,[2]],
+		"/government/requestlist": [~7,[2]],
+		"/government/requestlist/community/[communityId]": [~8,[2]],
+		"/government/requestlist/item/[itemname]": [~9,[2]],
+		"/nearby": [10],
+		"/request": [11]
 	};
 
 export const hooks = {

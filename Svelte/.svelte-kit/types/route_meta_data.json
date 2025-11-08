@@ -2,7 +2,16 @@
 	"/": [],
 	"/government": [],
 	"/government/communitielist": [],
-	"/government/requestlist": [],
+	"/government/map": [],
+	"/government/requestlist": [
+		"src/routes/government/requestlist/+page.server.ts"
+	],
+	"/government/requestlist/community/[communityId]": [
+		"src/routes/government/requestlist/community/[communityId]/+page.server.ts"
+	],
+	"/government/requestlist/item/[itemname]": [
+		"src/routes/government/requestlist/item/[itemname]/+page.server.ts"
+	],
 	"/nearby": [],
 	"/request": []
 }

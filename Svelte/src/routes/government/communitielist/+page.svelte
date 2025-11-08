@@ -1,21 +1,28 @@
 <script lang="ts">
-    const sectionName = "コミュニティ一覧";
+    const sectionName = "行政";
 </script>
 
 <div class="government-page">
     <header class="dashboard-header">
-        <h1>{sectionName}ページ</h1>
+        <h1>{sectionName}トップページ</h1>
     </header>
 
     <section class="action-buttons-section">
-        <a href="/government" class="action-button left">
-            <h2>トップページ</h2>
+        <a href="/government/communitielist" class="action-button left">
+            <h2>コミュニティ一覧</h2>
         </a>
 
         <a href="/government/requestlist" class="action-button right">
             <h2>支援要請一覧</h2>
         </a>
     </section>
+
+    <secton>
+        <h2>避難所・要請地点 マップ</h2>
+        <div class="map-placeholder">
+            地図表示エリア（現在は枠のみ）
+        </div>
+    </secton>
 </div>
 
 <style>
