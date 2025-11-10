@@ -14,7 +14,7 @@ EARTH_RADIUS_KM = 6371.0
 
 @router.get("/nearby", response_model=List[schemas.Communities]) # スキーマを指定
 async def get_locations(
-    latitude: float = Query(..., ge=-180.0, le=180.0, description="Latitude in degrees between -180 and 180"),
+    latitude: float = Query(..., ge=-90.0, le=90.0, description="Latitude in degrees between -90 and 90"),
     longitude: float = Query(..., ge=-180.0, le=180.0, description="Longitude in degrees between -180 and 180"),
     range_km: float = Query(..., gt=0.0, alias="range", description="Search radius in km; must be positive"),
     db: Session = Depends(get_db) # DBセッションをDI
