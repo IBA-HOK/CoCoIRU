@@ -43,11 +43,17 @@ async def get_locations(
     else:
         delta_lon_deg = delta_lat_deg / cos_lat
 
-    min_lat = latitude - delta_lat_deg
-    max_lat = latitude + delta_lat_deg
-    min_lon = longitude - delta_lon_deg
-    max_lon = longitude + delta_lon_deg
+    def clamp_lat(lat):
+        return max(-90.0, min(90.0, lat))
 
+    def wrap_lon(lon):
+        # Wrap longitude to [-180, 180]
+        return ((lon + 180.0) % 360.0) - 180.0
+
+    min_lat = clamp_lat(latitude - delta_lat_deg)
+    max_lat = clamp_lat(latitude + delta_lat_deg)
+    min_lon = wrap_lon(longitude - delta_lon_deg)
+    max_lon = wrap_lon(longitude + delta_lon_deg)
     candidates = db.query(Communities).filter(
         Communities.latitude.between(min_lat, max_lat),
         Communities.longitude.between(min_lon, max_lon)
