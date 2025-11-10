@@ -75,8 +75,8 @@ async def get_locations(
         except (ValueError, TypeError, AttributeError) as e:
             # skip records with invalid coordinates and log the error
             logger.warning(
-                f"Skipping community {c.community_id} due to invalid coordinates: "
-                f"latitude={c.latitude!r}, longitude={c.longitude!r}. Error: {e}"
+                f"Skipping community {c.community_id} due to invalid coordinates. "
+                f"Error type: {type(e).__name__}"
             )
             continue
         dist = haversine_km(latitude, longitude, comm_lat, comm_lon)
