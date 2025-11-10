@@ -341,3 +341,109 @@ def test_nearby_handles_communities_with_exact_same_location(client: TestClient,
     # 距離は0であるべき
     dist = haversine_km(base_lat, base_lon, data[0]["latitude"], data[0]["longitude"])
     assert dist < 0.01  # ほぼ0km
+
+
+def test_nearby_skips_communities_with_invalid_coordinates(client: TestClient, db_session: Session):
+    """
+    [GET] /api/v1/gnss/nearby - 無効な座標を持つコミュニティをスキップすることを確認
+    """
+    from sqlalchemy import text
+    
+    base_lat = 35.0
+    base_lon = 135.0
+    
+    # 有効なコミュニティ
+    valid_community = models.Communities(
+        community_id=None,
+        name="Valid Community",
+        latitude=35.01,
+        longitude=135.01,
+        member_id=None,
+        member_count=0,
+        created_at="2025-01-01T00:00:00"
+    )
+    db_session.add(valid_community)
+    db_session.commit()
+    
+    # 無効な座標を持つコミュニティを直接SQLで挿入
+    # (実際のシステムでは、マイグレーションや手動データ入力などで発生する可能性がある)
+    
+    # 無効な座標 (None)
+    db_session.execute(text("""
+        INSERT INTO Communities (member_id, name, latitude, longitude, member_count, created_at) 
+        VALUES (NULL, 'Invalid None', NULL, NULL, 0, '2025-01-01T00:00:00')
+    """))
+    
+    # 無効な座標 (文字列)
+    db_session.execute(text("""
+        INSERT INTO Communities (member_id, name, latitude, longitude, member_count, created_at) 
+        VALUES (NULL, 'Invalid String', 'invalid', 'invalid', 0, '2025-01-01T00:00:00')
+    """))
+    
+    db_session.commit()
+    
+    # API呼び出し
+    response = client.get(
+        "/api/v1/gnss/nearby",
+        params={
+            "latitude": base_lat,
+            "longitude": base_lon,
+            "range": 10.0
+        }
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # 有効なコミュニティのみが返されることを確認
+    assert len(data) == 1
+    assert data[0]["name"] == "Valid Community"
+    
+    # 無効な座標を持つコミュニティは含まれていないことを確認
+    returned_names = {c["name"] for c in data}
+    assert "Invalid None" not in returned_names
+    assert "Invalid String" not in returned_names
+
+
+def test_nearby_handles_partial_invalid_coordinates(client: TestClient, db_session: Session):
+    """
+    [GET] /api/v1/gnss/nearby - 一方の座標のみ無効なコミュニティをスキップすることを確認
+    """
+    from sqlalchemy import text
+    
+    base_lat = 35.0
+    base_lon = 135.0
+    
+    # 無効な座標を持つコミュニティを直接SQLで挿入
+    # 緯度のみ無効
+    db_session.execute(text("""
+        INSERT INTO Communities (member_id, name, latitude, longitude, member_count, created_at) 
+        VALUES (NULL, 'Invalid Latitude', NULL, 135.01, 0, '2025-01-01T00:00:00')
+    """))
+    
+    # 経度のみ無効
+    db_session.execute(text("""
+        INSERT INTO Communities (member_id, name, latitude, longitude, member_count, created_at) 
+        VALUES (NULL, 'Invalid Longitude', 35.01, NULL, 0, '2025-01-01T00:00:00')
+    """))
+    
+    db_session.commit()
+    
+    # API呼び出し
+    response = client.get(
+        "/api/v1/gnss/nearby",
+        params={
+            "latitude": base_lat,
+            "longitude": base_lon,
+            "range": 10.0
+        }
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    # 無効な座標を持つコミュニティは含まれていないことを確認
+    assert len(data) == 0
+    returned_names = {c["name"] for c in data}
+    assert "Invalid Latitude" not in returned_names
+    assert "Invalid Longitude" not in returned_names

@@ -3,10 +3,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 import math
+import logging
 
 from db.session import get_db
 from db.models import Communities
-from db import schemas           
+from db import schemas
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 # 地球の半径 (km)
@@ -73,8 +78,12 @@ async def get_locations(
         try:
             comm_lat = float(c.latitude)
             comm_lon = float(c.longitude)
-        except Exception:
-            # skip records with invalid coordinates
+        except (ValueError, TypeError, AttributeError) as e:
+            # skip records with invalid coordinates and log the error
+            logger.warning(
+                f"Skipping community {c.community_id} due to invalid coordinates. "
+                f"Error type: {type(e).__name__}"
+            )
             continue
         dist = haversine_km(latitude, longitude, comm_lat, comm_lon)
         if dist <= range_km:
