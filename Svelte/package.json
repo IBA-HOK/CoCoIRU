@@ -13,7 +13,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"api": "cd ../ && uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
+		"api": "cd ../ && python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",

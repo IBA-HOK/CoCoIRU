@@ -64,7 +64,7 @@
           </div>
         </Popup>
 
-      </Marker> [cite: 7]
+      </Marker>
     {/each}
 
   </MapLibre>
