@@ -28,7 +28,7 @@
 		goto('/');
 	}
 	function confirmButtonClick() {
-		goto('/confirm');
+		goto('/request/confirm');
 	}
 </script>
 
@@ -53,7 +53,9 @@
 		</div>
 	{/each}
 </div>
+<div style="text-align: center;">
 	<Button text="その他申請" on:click={othersButtonClick} />
+</div>
 <div class="request_footer">
 	<Button text="はじめに戻る" on:click={homeButtonClick} />
 	<Button text="注文確定" on:click={confirmButtonClick} />
@@ -98,6 +100,7 @@
 	}
 
 	.request_footer {
+		padding-top: 50px;
 		display: flex;
 		justify-content: space-evenly;
 	}
