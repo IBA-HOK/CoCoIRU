@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/government/requestlist/item/[itemname]/+page.svelte";
