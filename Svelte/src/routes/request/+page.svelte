@@ -22,7 +22,7 @@
 	}
 </script>
 
-<img src={cartIcon} alt="ショッピングカート" class=shopping_cart/>
+<img src={cartIcon} alt="ショッピングカート" class="shopping_cart"/>
 <div class=confirm>
 	<h2>注文確認：</h2>
 	<h2>{totalSelected}</h2>
