@@ -1,56 +1,49 @@
 <script lang="ts">
-  // APIデータなしでUIの枠組みのみを作成
-  const mapCenterText = "API接続が完了すると、地図の中心座標 (緯度, 経度) が表示されます。";
+    import MapComponent from '$lib/MapComponent.svelte';
+    import type { PageData } from './$types';
+
+    export let data: PageData;
+
+    $: mapMarkers = data.communities
+     	.filter(c => c.latitude != null && c.longitude != null)
+   		 .map(c => ({
+			lat: c.latitude!,     // ! (Non-null assertion) を使い、null でないことをTSに伝える
+			lng: c.longitude!,    // 同上
+			caption: c.name || '名前未設定' // name が null の場合のフォールバック
+    }));
+
 </script>
 
 <div class="map-page-container">
 	<h1>📍 避難所コミュニティ位置情報</h1>
 	<p class="subtitle">すべての避難所コミュニティの位置、人数、特記事項などを地図で確認します。</p>
 	
-	<div class="map-placeholder">
-		<div class="map-content">
-			<p class="map-label">【地図表示エリア】</p>
-			<p class="map-note">ここに Leaflet や Google Maps などの地図が統合されます。</p>
-			<p class="map-note center-text">{mapCenterText}</p>
-		</div>
+	<div class="map-container-wrapper">
+    <MapComponent 
+        markers={mapMarkers}
+        initialCenter={data.mapCenter}
+        initialZoom={12}
+    />
 	</div>
 </div>
 
 <style>
-    h1 {
+	h1 {
 		color: #00796b;
-        border-bottom: 2px solid #00796b;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
+		border-bottom: 2px solid #00796b;
+		padding-bottom: 10px;
+		margin-bottom: 10px;
 	}
 	.subtitle {
-        font-size: 1.1em;
-        color: #555;
-        margin-bottom: 40px;
-    }
-	.map-placeholder {
-    width: 100%;
-    height: 600px; /* マップを想定した固定の高さ */
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    border-radius: 8px;
-    }
-	.map-content {
-		text-align: center;
-		color: #888;
+    	font-size: 1.1em;
+		color: #555;
+    	margin-bottom: 20px;
 	}
-	.map-label {
-		font-size: 1.5em;
-		font-weight: bold;
-		color: #666;
-	}
-	.center-text {
-		margin-top: 15px;
-		font-style: italic;
-		max-width: 400px;
+	.map-container-wrapper {
+    	width: 100%;
+		height: 600px;
+		border: 1px solid #ccc;
+		border-radius: 8px;
+		overflow: hidden; 
 	}
 </style>
