@@ -29,3 +29,8 @@
 ```bash
 npm start
 ```
+### -- 3. API起動
+```bash
+npm run api　
+```
+でAPIを起動できます。ポートは8000番です。
