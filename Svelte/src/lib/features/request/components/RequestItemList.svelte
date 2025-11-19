@@ -5,7 +5,7 @@
   * 申請されたアイテム（数量が0より大きいもの）を受け取り、
   * 読み取り専用のリストとして表示するコンポーネントです。
   *
-  * @see /routes/request/confirm/+page.svelte - 主な呼び出し元の確認ページ
+  * @see /routes/community/request/confirm/+page.svelte - 主な呼び出し元の確認ページ
   */
 
   type Item = {

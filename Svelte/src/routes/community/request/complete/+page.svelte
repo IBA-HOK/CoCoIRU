@@ -1,9 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import Button from '$lib/Button.svelte';
+	import { Button } from '$lib';
   // ボタン
   function homeButtonClick() {
-    goto('/');
+    goto('/community');
   }
 </script>
 

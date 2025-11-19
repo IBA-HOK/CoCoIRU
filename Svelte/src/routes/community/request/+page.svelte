@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Button from '$lib/Button.svelte';
-	import { requestItems } from '$lib/requestItems';
+	import { Button } from '$lib';
+	import { requestItems } from '$lib/features/request/requestItems';
 
 
 	// 最大値は99
@@ -11,13 +11,13 @@
 
 	// ボタン
 	function othersButtonClick() {
-		goto('/request/others');
+		goto('/community/request/others');
 	}
 	function homeButtonClick() {
-		goto('/');
+		goto('/community');
 	}
 	function confirmButtonClick() {
-		goto('/request/confirm');
+		goto('/community/request/confirm');
 	}
 </script>
 

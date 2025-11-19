@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { requestItems } from '$lib/requestItems';
-  import Button from '$lib/Button.svelte';
+  import { requestItems } from '$lib/features/request/requestItems';
+	import { Button } from '$lib';
   import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
 
   // 特記事項
@@ -11,13 +11,13 @@
 
   // ボタン
   function backButtonClick() {
-    goto('/request');
+    goto('/community/request');
   }
   function orderButtonClick() {
     // 仮の処理(todo: 実際のデータベース処理を実装)
     console.log('注文内容:', selectedItems);
     console.log('特記事項:', notes);
-    goto('/request/complete'); 
+    goto('/community/request/complete'); 
   }
 </script>
 

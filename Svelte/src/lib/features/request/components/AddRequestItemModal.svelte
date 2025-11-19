@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { requestItems } from '$lib/requestItems';
-	import Button from '$lib/Button.svelte';
+	import { requestItems } from '$lib/features/request/requestItems';
+	import { Button } from '$lib';
 
 	/**
 	 * @component RequestItemModal
@@ -9,7 +9,7 @@
 	 * モーダルを開くか閉じるかを制御するブール値。
 	 * bind:show={...} で双方向にバインドされます。
 	 *
-	 * @see /routes/request/others/+page.svelte - 主な呼び出し元の確認ページ
+	 * @see /routes/community/request/others/+page.svelte - 主な呼び出し元の確認ページ
 	 */
 
 	export let show: boolean = false;

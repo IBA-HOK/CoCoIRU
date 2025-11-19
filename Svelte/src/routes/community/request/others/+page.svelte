@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { requestItems } from '$lib/requestItems';
-  import Button from '$lib/Button.svelte';
+  import { requestItems } from '$lib/features/request/requestItems';
+	import { Button } from '$lib';
   import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
   import AddRequestItemModal from '$lib/features/request/components/AddRequestItemModal.svelte';
 
@@ -9,7 +9,7 @@
   let showModal = false;
 
   function backButtonClick() {
-    goto('/request');
+    goto('/community/request');
   }
   
   $: selectedItems = $requestItems.filter(requestItems => requestItems.value > 0);
