@@ -1,7 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import Button from '$lib/Button.svelte';
   import { requestItems } from '$lib/requestItems';
+  import Button from '$lib/Button.svelte';
+  import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
 
   // 特記事項
   let notes = '';
@@ -23,17 +24,7 @@
 <h1 style="text-align: center;">申請漏れはございませんか？</h1>
 
 <div class="content-container">
-  <div class="selected-items-list">
-    {#each selectedItems as item}
-      <div class="selected-item">
-        <span class="item-text">{item.text}</span>
-        <div class="item-quantity">
-          <span>{item.value}</span>
-        </div>
-      </div>
-    {/each}
-  </div>
-
+  <RequestItemList items={selectedItems} />
   <textarea 
     bind:value={notes} 
     placeholder="特記事項があればお書きください。"
@@ -56,38 +47,6 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 1rem;
-  }
-
-  .selected-items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .selected-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #e0ffe0;
-    border: 1px solid #c0e0c0;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 1.1rem;
-  }
-
-  .item-text {
-    font-weight: bold;
-  }
-
-  .item-quantity {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #4CAF50;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
   }
 
   textarea {

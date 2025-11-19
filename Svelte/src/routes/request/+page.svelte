@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Button from '$lib/Button.svelte';
-	import cartIcon from '$lib/assets/shopping_cart.svg';
 	import { requestItems } from '$lib/requestItems';
 
 
@@ -22,7 +21,7 @@
 	}
 </script>
 
-<img src={cartIcon} alt="ショッピングカート" class="shopping_cart"/>
+<img src="/src/lib/features/request/shopping_cart.svg" alt="ショッピングカート" class="shopping_cart"/>
 <div class=confirm>
 	<h2>注文確認：</h2>
 	<h2>{totalSelected}</h2>
