@@ -31,3 +31,35 @@ Svelteフォルダに移動して
 cd Svelte
 npm start
 ```
+
+### -- 3. フォルダ構成
+主なファイルの構成を以下に示す
+
+```bash
+Svelte
+  ├── src/    
+      ├── lib/                          // アプリケーション内部ライブラリ ($libで参照可能)
+      │   ├── components/               // アプリケーション全体で共有する汎用UIコンポーネント
+      │   │   └── Button.svelte
+      │   │   
+      │   ├── features/                 // 機能単位（ドメインごと）のリソース群
+      │   │   ├── request/              // 「申請機能」関連のモジュール
+      │   │   │   ├── components/       // 申請機能専用のコンポーネント
+      │   │   │   │   ├── RequestItemList.svelte
+      │   │   │   │   └──    
+      │   │   │   └── requestItems.ts   // 申請機能固有のロジック・定数・型定義
+      │   │   └──                       // 他の機能を追加する場合はここにディレクトリを作成
+      │   │   
+      │   └── index.ts                  // $libインポート用の目次ファイル (バレルファイル)
+      │
+      └── routes/                       // ページルーティング定義（URL構造に対応）
+          ├── community/
+          │   ├── nearby/
+          │   │   └── +page.svelte      // 周辺コミュニティ画面 (/community/nearby)
+          │   └── request/
+          │       ├── complete/         // 申請完了画面 (/community/request/complete)
+          │       └── +page.svelte      // 申請画面 (/community/request)
+          ├── government/
+          ├── +layout.svelte            // 全ページ共通のレイアウト
+          └── +page.svelte              // トップページ (/)
+```
