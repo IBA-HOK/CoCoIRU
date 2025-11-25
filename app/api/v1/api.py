@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     gnss,
     login,
     token,
+    government
 )
 
 api_router = APIRouter()
@@ -37,3 +38,5 @@ api_router.include_router(gnss.router, prefix="/gnss", tags=["GNSS"])
 api_router.include_router(login.router, prefix="/login", tags=["login"])
 # 11. Token issuance
 api_router.include_router(token.router, prefix="/token", tags=["Auth"])
+# 12. Government Dashboard
+api_router.include_router(government.router, prefix="/government", tags=["Government Dashboard"])

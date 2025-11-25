@@ -1,6 +1,11 @@
 // 申請物資リスト
 import { writable } from 'svelte/store';
 
+type RequestItem = {
+  text: string;
+  value: number;
+};
+
 const initialRequestItems = [
   { text: '食料', value: 0 },
   { text: '毛布', value: 0 },
