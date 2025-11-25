@@ -136,7 +136,7 @@
       
       // 円の外枠線 (オプション)
       map.addLayer({
-        id: 'search-radius-outline',
+        id: 'search-radius-outline2',
         type: 'line',
         source: 'search-radius-source',
         layout: {},
