@@ -5,6 +5,9 @@
   function homeButtonClick() {
     goto('/community');
   }
+  function loginButtonClick() {
+    goto('/login');
+  }
 </script>
 
 <div style="text-align: center;">
@@ -13,5 +16,6 @@
 
 <div class="request_footer">
   <Button text="はじめに戻る" on:click={homeButtonClick} />
+  <Button text="ログイン画面へ" on:click={loginButtonClick} />
 </div>
 </div>

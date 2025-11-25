@@ -13,3 +13,7 @@ pydantic
 # テスト用
 pytest
 httpx
+
+# ログイン用
+python-jose[cryptography]
+bcrypt>=4.0.0

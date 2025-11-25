@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta, timezone
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
@@ -6,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 # --- アプリケーション本体とDB関連をインポート ---
 # (PYTHONPATHが通っている前提。通ってない場合は sys.path.append で調整)
 from app.main import app
+from app.core.security import require_token
 from db.session import Base, get_db
 
 # --- テスト用データベース設定 ---
@@ -94,6 +98,17 @@ def client(db_session):
 
     # FastAPIアプリの依存関係 (get_db) をテスト用 (override_get_db) に上書き
     app.dependency_overrides[get_db] = override_get_db
+
+    def override_require_token():
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+        return {
+            "sub": "test-user",
+            "role": "gov",
+            "jti": f"test-{uuid.uuid4()}",
+            "exp": int(expires_at.timestamp()),
+        }
+
+    app.dependency_overrides[require_token] = override_require_token
 
     # オーバーライドしたアプリでTestClientを作成
     with TestClient(app) as c:

@@ -7,8 +7,9 @@ import math
 from db.session import get_db
 from db.models import Communities
 from db import schemas           # (重要) ご自身のCommunityスキーマをインポートしてください
+from app.core.security import require_token
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_token)])
 
 # 地球の半径 (km)
 EARTH_RADIUS_KM = 6371.0
