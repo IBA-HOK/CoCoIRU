@@ -48,6 +48,15 @@ async def require_token(
     """FastAPI dependency that enforces OAuth2 bearer authentication.
     Checks cookie first, then Authorization header. Also validates against blacklist.
     """
+    # 同一ポート(8000)からのリクエストは素通し
+    client_host = request.client.host if request.client else None
+    client_port = request.client.port if request.client else None
+    server_port = request.url.port or 8000  # デフォルトは8000
+    
+    if client_host in ["127.0.0.1", "localhost", "::1"] and client_port == server_port:
+        print(f"DEBUG: Same-port request from {client_host}:{client_port}, bypassing authentication")
+        return {"sub": "localhost", "role": "admin", "token": "localhost_bypass"}
+    
     # Cookie優先でトークン取得
     access_token = request.cookies.get("access_token")
     token = access_token or authorization
@@ -92,6 +101,10 @@ async def require_token(
 
 async def require_gov_role(token_data: dict = Depends(require_token)) -> dict:
     """FastAPI dependency that requires gov role."""
+    # localhostからのリクエストはadmin権限で素通し
+    if token_data.get("role") == "admin":
+        return token_data
+    
     if token_data.get("role") != "gov":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
