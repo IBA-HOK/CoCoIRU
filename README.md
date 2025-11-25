@@ -32,6 +32,19 @@ cd Svelte
 npm start
 ```
 
+Svelteフォルダに移動して
+APIサーバを起動します。
+```bash
+cd Svelte
+npm run api
+```
+必要なPythonパッケージがインストールされていない場合は適宜インストールしてください。
+```bash
+pip install -r requirements.txt
+```
+もし何らかのエラーが出る場合はrequirements.txtの文字コードをSjisに変更してください。
+もしインストールでOSエラーが出る場合は管理者権限でターミナルを開いてください。
+
 ### -- 3. フォルダ構成
 主なファイルの構成を以下に示す
 
