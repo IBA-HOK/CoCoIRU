@@ -1,19 +1,30 @@
 <script lang="ts">
-  import MapComponent from '$lib/MapComponent.svelte';
-  import type { PageData } from './$types';
+  	import MapComponent from '$lib/MapComponent.svelte';
+  	import type { PageData } from './$types';
 
-  export let data: PageData;
+  	export let data: PageData;
 
-  // APIで検索に使用した半径 (仮に10km）
-const searchRadiusKm = 10.0;
+	// APIで検索に使用した半径 (仮に10km）
+	const searchRadiusKm = 10.0;
 
-  $: mapMarkers = data.communities
-    .filter(c => c.latitude != null && c.longitude != null)
-    .map(c => ({
-      lat: c.latitude!,
-      lng: c.longitude!,
-      caption: c.name || '名前未設定'
-    }));
+	// テスト用のダミーデータ ---
+  const dummyMarkers = [
+    { lat: 35.6895, lng: 139.6917, caption: '📍 新宿 (テストデータ)' },
+    { lat: 35.6585, lng: 139.7454, caption: '🗼 東京タワー (テストデータ)' },
+    { lat: 35.7100, lng: 139.8107, caption: '🗼 スカイツリー (テストデータ)' },
+    { lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
+  ];
+
+	$: mapMarkers = [
+    ...dummyMarkers, // 先頭にダミーを追加
+    ...data.communities
+      .filter(c => c.latitude != null && c.longitude != null)
+      .map(c => ({
+        lat: c.latitude!,
+        lng: c.longitude!,
+        caption: c.name || '名前未設定'
+      }))
+  ];
 </script>
 
 <div class="map-page-container">
