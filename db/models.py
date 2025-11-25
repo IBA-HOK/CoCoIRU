@@ -36,6 +36,18 @@ class ShelterInfo(Base):
     # 関連: Shelterテーブルから参照される
     shelter = relationship("Shelter", back_populates="info")
 
+# 3.5. Credential (依存先なし、CommunitiesとGovUserから参照される)
+class Credential(Base):
+    __tablename__ = "Credential"
+    credential_id = Column(Integer, primary_key=True, index=True)
+    hashed_password = Column(TEXT, nullable=False)
+    created_at = Column(TEXT)
+    
+    # 関連: Communitiesテーブルから参照される
+    community = relationship("Communities", back_populates="credential")
+    # 関連: GovUserテーブルから参照される
+    gov_user = relationship("GovUser", back_populates="credential")
+
 # 4. Members (Special_notes に依存)
 class Members(Base):
     __tablename__ = "Members"
@@ -67,6 +79,7 @@ class Communities(Base):
     __tablename__ = "Communities"
     community_id = Column(Integer, primary_key=True, index=True)
     member_id = Column(Integer, ForeignKey("Members.member_id"))
+    credential_id = Column(Integer, ForeignKey("Credential.credential_id"), nullable=False, unique=True)
     name = Column(TEXT)
     latitude = Column(REAL)
     longitude = Column(REAL)
@@ -75,6 +88,8 @@ class Communities(Base):
     
     # 関連: Members へ
     member = relationship("Members", back_populates="community")
+    # 関連: Credential へ
+    credential = relationship("Credential", back_populates="community")
     # 関連: Shelter, Support_Request から参照される
     shelters = relationship("Shelter", back_populates="community")
     support_requests = relationship("SupportRequest", back_populates="community")
@@ -103,3 +118,25 @@ class SupportRequest(Base):
     # 関連: Communities と Request_content へ
     community = relationship("Communities", back_populates="support_requests")
     request_content = relationship("RequestContent", back_populates="support_request")
+
+# 9. GovUser (Credential に依存)
+class GovUser(Base):
+    __tablename__ = "GovUser"
+    gov_user_id = Column(Integer, primary_key=True, index=True)
+    username = Column(TEXT, unique=True, nullable=False, index=True)
+    credential_id = Column(Integer, ForeignKey("Credential.credential_id"), nullable=False, unique=True)
+    email = Column(TEXT)
+    full_name = Column(TEXT)
+    is_active = Column(Integer, default=1)  # SQLiteではBooleanの代わりにInteger
+    created_at = Column(TEXT)
+    
+    # 関連: Credential へ
+    credential = relationship("Credential", back_populates="gov_user")
+
+# 10. TokenBlacklist (依存先なし)
+class TokenBlacklist(Base):
+    __tablename__ = "TokenBlacklist"
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(TEXT, unique=True, nullable=False, index=True)
+    blacklisted_at = Column(TEXT, nullable=False)
+    expires_at = Column(TEXT, nullable=False)  # トークンの有効期限
