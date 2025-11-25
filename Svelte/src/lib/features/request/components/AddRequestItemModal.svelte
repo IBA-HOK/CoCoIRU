@@ -15,8 +15,8 @@
 	export let show: boolean = false;
 
 	let newItemName: string = '';
-  let newItemValue: number = 1;
-  const maxValue = 100;
+	let newItemValue: number = 1;
+	const maxValue = 100;
 
 	function closeModal() {
 		show = false;
@@ -33,20 +33,20 @@
 		}
 	}
 
-  // 追加処理
+	// 追加処理
 	function addItem() {
 		if (newItemName.trim() !== '') {
 			requestItems.update((currentItems) => {
 				const newItem = {
 					text: newItemName.trim(),
-          value: newItemValue
+					value: newItemValue
 				};
 				return [...currentItems, newItem];
 			});
 
-      // リセット
+			// リセット
 			newItemName = '';
-      newItemValue = 1;
+			newItemValue = 1;
 			closeModal();
 		}
 	}
@@ -82,17 +82,17 @@
 				<label for="item-name">品目名:</label>
 				<input type="text" id="item-name" bind:value={newItemName} placeholder="例: 頭痛薬" />
 			</div>
-      
-      <div class="input-group">
-        <label for="item-quantity">数量:</label>
-        <select id="item-quantity" bind:value={newItemValue}>
-          {#each Array(maxValue) as _, i}
-            <option value={i}>
-              {i}
-            </option>
-          {/each}
-        </select>
-      </div>
+
+			<div class="input-group">
+				<label for="item-quantity">数量:</label>
+				<select id="item-quantity" bind:value={newItemValue}>
+					{#each Array(maxValue) as _, i}
+						<option value={i}>
+							{i}
+						</option>
+					{/each}
+				</select>
+			</div>
 
 			<div class="modal-actions">
 				<Button text="キャンセル" on:click={closeModal} />
@@ -109,7 +109,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0, 0, 0, 0.6);
+		background-color: color-mix(in srgb, var(--md-sys-color-scrim, #000), transparent 40%);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -117,18 +117,27 @@
 	}
 
 	.modal-content {
-		background-color: white;
+		background-color: var(--card);
+		color: var(--text);
 		padding: 2rem;
 		border-radius: 8px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		box-shadow:
+			0 4px 12px color-mix(in srgb, var(--shadow), transparent 95%),
+			0 0 2px color-mix(in srgb, var(--shadow), transparent 90%);
 		min-width: 400px;
 		max-width: 90%;
 		z-index: 1001;
 		cursor: default;
+		border: 1px solid var(--md-sys-color-outline-variant);
 	}
 
 	h2 {
 		margin-top: 0;
+		color: var(--text);
+	}
+
+	p {
+		color: var(--text-sub);
 	}
 
 	.input-group {
@@ -138,17 +147,26 @@
 		display: block;
 		margin-bottom: 0.5rem;
 		font-weight: bold;
+		color: var(--text);
 	}
-  .input-group input,
-  .input-group select {
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    background-color: white;
-  }
+	.input-group input,
+	.input-group select {
+		width: 100%;
+		padding: 0.5rem;
+		font-size: 1rem;
+		border: 1px solid var(--outline);
+		background-color: var(--bg);
+		color: var(--text);
+		border-radius: 4px;
+		box-sizing: border-box;
+	}
+
+	.input-group input:focus,
+	.input-group select:focus {
+		outline: none;
+		border-color: var(--primary);
+		box-shadow: 0 0 0 2px var(--primary-container);
+	}
 
 	.modal-actions {
 		display: flex;

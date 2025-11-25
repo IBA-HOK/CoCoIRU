@@ -132,12 +132,20 @@
   --text-sub: var(--md-sys-color-on-surface-variant);
 
   /* === コンポーネント === */
-  /* カードの背景（背景色より少し浮き出た色） */
+  /* カードの背景 */
   --card: var(--md-sys-color-surface-container);
+  /* カードにおいたカードの背景 */
+  --card-high: var(--md-sys-color-surface-container-high);
   /* 枠線の色 */
   --outline: var(--md-sys-color-outline);
+  /* サブの枠線の色 */
+  --outline-sub: var(--md-sys-color-outline-variant);
   
+  /* === 影 === */
+  --shadow: var(--md-sys-color-shadow);
+
   /* === エラー === */
   --error: var(--md-sys-color-error);
   --on-error: var(--md-sys-color-on-error);
+
 }
