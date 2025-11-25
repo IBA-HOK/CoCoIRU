@@ -1,10 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  
-  // 【修正ポイント1】中括弧 {} をやめて、デフォルトインポートにします
-  // エラー原因: import { Map, Marker, Popup } from 'maplibre-gl'; 
   import maplibregl from 'maplibre-gl';
-  
   import 'maplibre-gl/dist/maplibre-gl.css';
 
   // マーカー情報の型定義
@@ -15,15 +11,36 @@
   }
 
   export let markers: MarkerInfo[] = [];
-  export let initialCenter: [number, number] = [139.767, 35.681];
+  export let initialCenter: [number, number] = [136.884, 35.170];
   export let initialZoom: number = 10;
+  export let radiuskm: number;
 
   let mapContainer: HTMLDivElement;
-  // 型定義も maplibregl.Map を参照するように変更
   let map: maplibregl.Map;
 
+  // --- ヘルパー関数: 中心と半径(km)から円のポリゴン座標を生成 ---
+  function createGeoJSONCircle(center: [number, number], radiusInkm: number, points: number = 64) {
+    const coords = {
+      latitude: center[1],
+      longitude: center[0]
+    };
+    const km = radiusInkm;
+    const ret = [];
+    const distanceX = km / (111.32 * Math.cos((coords.latitude * Math.PI) / 180));
+    const distanceY = km / 110.574;
+
+    let theta, x, y;
+    for (let i = 0; i < points; i++) {
+      theta = (i / points) * (2 * Math.PI);
+      x = distanceX * Math.cos(theta);
+      y = distanceY * Math.sin(theta);
+      ret.push([coords.longitude + x, coords.latitude + y]);
+    }
+    ret.push(ret[0]); // 多角形を閉じる
+    return ret;
+  }
+
   onMount(() => {
-    // 【修正ポイント2】 maplibregl.Map として使います
     map = new maplibregl.Map({
       container: mapContainer,
       style: {
@@ -55,6 +72,46 @@
     });
 
     map.on('load', () => {
+      // 範囲円 (Circle) の描画
+      map.addSource('search-radius-source', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [createGeoJSONCircle(initialCenter, radiuskm)]
+            },
+            properties: {}
+          }]
+        }
+      });
+
+      // レイヤーを追加 (半透明の青い円)
+      map.addLayer({
+        id: 'search-radius-layer',
+        type: 'fill',
+        source: 'search-radius-source',
+        layout: {},
+        paint: {
+          'fill-color': '#007cbf', // 円の色
+          'fill-opacity': 0.3      // 透明度 (0.0 ~ 1.0)
+        }
+      });
+      
+      // 円の外枠線 (オプション)
+      map.addLayer({
+        id: 'search-radius-outline',
+        type: 'line',
+        source: 'search-radius-source',
+        layout: {},
+        paint: {
+          'line-color': '#007cbf',
+          'line-width': 2
+        }
+      });
+
       markers.forEach((markerInfo) => {
         // maplibregl.Popup として使う
         const popup = new maplibregl.Popup({ offset: 25 })

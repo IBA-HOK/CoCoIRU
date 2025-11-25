@@ -1,17 +1,19 @@
 <script lang="ts">
-    import MapComponent from '$lib/MapComponent.svelte';
-    import type { PageData } from './$types';
+  import MapComponent from '$lib/MapComponent.svelte';
+  import type { PageData } from './$types';
 
-    export let data: PageData;
+  export let data: PageData;
 
-    $: mapMarkers = data.communities
-     	.filter(c => c.latitude != null && c.longitude != null)
-   		 .map(c => ({
-			lat: c.latitude!,     // ! (Non-null assertion) を使い、null でないことをTSに伝える
-			lng: c.longitude!,    // 同上
-			caption: c.name || '名前未設定' // name が null の場合のフォールバック
+  // APIで検索に使用した半径 (仮に10km）
+const searchRadiusKm = 10.0;
+
+  $: mapMarkers = data.communities
+    .filter(c => c.latitude != null && c.longitude != null)
+    .map(c => ({
+      lat: c.latitude!,
+      lng: c.longitude!,
+      caption: c.name || '名前未設定'
     }));
-
 </script>
 
 <div class="map-page-container">
@@ -23,6 +25,7 @@
         markers={mapMarkers}
         initialCenter={data.mapCenter}
         initialZoom={12}
+		radiuskm={searchRadiusKm}
     />
 	</div>
 </div>
