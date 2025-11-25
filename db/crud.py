@@ -369,3 +369,37 @@ def authenticate_gov_user(db: Session, username: str, password: str):
     if not gov_user.is_active:
         return None
     return gov_user
+
+
+# --- 11. TokenBlacklist ---
+
+def add_token_to_blacklist(db: Session, token: str, expires_at: str):
+    """トークンをブラックリストに追加"""
+    from datetime import datetime
+    db_blacklist = models.TokenBlacklist(
+        token=token,
+        blacklisted_at=datetime.now().isoformat(),
+        expires_at=expires_at
+    )
+    db.add(db_blacklist)
+    db.commit()
+    db.refresh(db_blacklist)
+    return db_blacklist
+
+
+def is_token_blacklisted(db: Session, token: str) -> bool:
+    """トークンがブラックリストに登録されているかチェック"""
+    result = db.query(models.TokenBlacklist).filter(
+        models.TokenBlacklist.token == token
+    ).first()
+    return result is not None
+
+
+def cleanup_expired_tokens(db: Session):
+    """期限切れのブラックリストトークンを削除"""
+    from datetime import datetime
+    now = datetime.now().isoformat()
+    db.query(models.TokenBlacklist).filter(
+        models.TokenBlacklist.expires_at < now
+    ).delete()
+    db.commit()

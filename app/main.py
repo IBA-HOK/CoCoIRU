@@ -18,8 +18,11 @@ app = FastAPI(
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 開発環境用。本番環境では特定のオリジンを指定してください
-    allow_credentials=True,
+    allow_origins=[
+        "http://localhost:5173",  # Svelte開発サーバー
+        "http://127.0.0.1:5173",  # Svelte開発サーバー(代替)
+    ],
+    allow_credentials=True,  # Cookie認証に必須
     allow_methods=["*"],
     allow_headers=["*"],
 )

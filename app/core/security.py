@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Cookie, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from db.session import get_db
 from db import crud
 
 # Centralized OAuth2 dependency so every endpoint shares the same login gate.
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token", auto_error=False)
 
 
 def verify_community_credentials(community_id: int, password: str, db: Session) -> bool:
@@ -40,12 +40,32 @@ def decode_access_token(token: str) -> dict:
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 
 
-async def require_token(token: str = Depends(oauth2_scheme)) -> dict:
-    """FastAPI dependency that enforces OAuth2 bearer authentication."""
+async def require_token(
+    request: Request,
+    authorization: Optional[str] = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> dict:
+    """FastAPI dependency that enforces OAuth2 bearer authentication.
+    Checks cookie first, then Authorization header. Also validates against blacklist.
+    """
+    # Cookie優先でトークン取得
+    access_token = request.cookies.get("access_token")
+    token = access_token or authorization
+    
+    print(f"DEBUG: Cookie={access_token[:20] if access_token else None}, Auth={authorization[:20] if authorization else None}, Token={token[:20] if token else None}")
+    
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing bearer token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # ブラックリストチェック
+    if crud.is_token_blacklisted(db, token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -67,7 +87,7 @@ async def require_token(token: str = Depends(oauth2_scheme)) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    return {"sub": subject, "role": role}
+    return {"sub": subject, "role": role, "token": token}
 
 
 async def require_gov_role(token_data: dict = Depends(require_token)) -> dict:

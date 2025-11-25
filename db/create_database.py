@@ -141,7 +141,22 @@ def create_database_with_all_tables():
         );
         """)
 
-        # 変更をコミット（保存）
+        # 10. トークンブラックリストテーブル (TokenBlacklist)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS TokenBlacklist (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT NOT NULL UNIQUE,
+            blacklisted_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL
+        );
+        """)
+        
+        # トークン検索のためのインデックス
+        cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_token ON TokenBlacklist(token);
+        """)
+
+        # 変更をコミット(保存)
         conn.commit()
         print("全テーブルが正常に作成または確認されました。")
 

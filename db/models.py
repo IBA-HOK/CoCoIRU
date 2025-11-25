@@ -132,3 +132,11 @@ class GovUser(Base):
     
     # 関連: Credential へ
     credential = relationship("Credential", back_populates="gov_user")
+
+# 10. TokenBlacklist (依存先なし)
+class TokenBlacklist(Base):
+    __tablename__ = "TokenBlacklist"
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(TEXT, unique=True, nullable=False, index=True)
+    blacklisted_at = Column(TEXT, nullable=False)
+    expires_at = Column(TEXT, nullable=False)  # トークンの有効期限
