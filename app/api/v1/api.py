@@ -8,7 +8,8 @@ from app.api.v1.endpoints import (
     communities, 
     shelter, 
     support_request,
-    gnss
+    gnss,
+    government
 )
 
 api_router = APIRouter()
@@ -31,3 +32,5 @@ api_router.include_router(shelter.router, prefix="/shelter", tags=["Shelter"])
 api_router.include_router(support_request.router, prefix="/support_requests", tags=["Support Requests"])
 # 9. Additional Endpoints
 api_router.include_router(gnss.router, prefix="/gnss", tags=["GNSS"])
+# 10. Government Dashboard
+api_router.include_router(government.router, prefix="/government", tags=["Government Dashboard"])
