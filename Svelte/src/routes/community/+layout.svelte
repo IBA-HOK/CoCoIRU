@@ -1,9 +1,4 @@
-<script lang="ts">
-  import favicon from '$lib/assets/favicon.svg';
-</script>
-
 <svelte:head>
-  <link rel="icon" href={favicon} />
   <meta name="robots" content="noindex" />
   <title>コミュニティ</title>
 </svelte:head>
