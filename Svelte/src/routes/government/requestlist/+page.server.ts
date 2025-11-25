@@ -1,32 +1,28 @@
 import type { PageServerLoad } from './$types';
+import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async () => {
-    // 仮データ
-    const dummyCommunities = [
-        { 
-            id: 1, 
-            name: "A地区小学校避難所 (102号室)", 
-            latitude: 34.6937, 
-            longitude: 135.5023, 
-            pending_requests: 5,
-        },
-        { 
-            id: 2, 
-            name: "B地区体育館コミュニティ", 
-            latitude: 34.7000, 
-            longitude: 135.5500, 
-            pending_requests: 2,
-        },
-        { 
-            id: 3, 
-            name: "C町高齢者グループ", 
-            latitude: 34.6500, 
-            longitude: 135.4500, 
-            pending_requests: 0,
-        },
-    ];
+const API_BASE_URL = 'http://127.0.0.1:8000/api/v1'; 
 
-    return {
-        communities: dummyCommunities // 画面側にデータを渡す
-    };
+export const load: PageServerLoad = async ({ fetch }) => {
+    try {
+        // 新しく作成した行政専用APIエンドポイントを呼び出す
+        const response = await fetch(`${API_BASE_URL}/government/requests`);
+        
+        if (!response.ok) {
+            const errorBody = await response.json();
+            console.error('API Error:', errorBody);
+            throw error(response.status, `データ取得に失敗: ${errorBody.detail || '不明なエラー'}`);
+        }
+
+        // 結合済みのデータを取得
+        const requests = await response.json();
+
+        return {
+            requests: requests
+        };
+
+    } catch (e) {
+        console.error('Error fetching government requests:', e);
+        throw error(500, 'サーバーからのデータ取得中に予期せぬエラーが発生しました。');
+    }
 };
