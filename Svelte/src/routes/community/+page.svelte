@@ -77,7 +77,7 @@
     <h2>コミュニティID を入力</h2>
 
     <div class="top-actions">
-      <button class="btn" on:click={() => goto('/login')}>コミュニティ作成・参加へ</button>
+      <button class="btn" on:click={() => goto('http://localhost:5173/community/login')}>コミュニティ作成・参加へ</button>
     </div>
 
     <label>コミュニティID
