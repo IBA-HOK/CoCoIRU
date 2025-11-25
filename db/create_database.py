@@ -1,9 +1,12 @@
 import sqlite3
+import os
+from datetime import datetime
 
 def create_database_with_all_tables():
     """
     指定された全スキーマでSQLite3データベースとテーブルを作成します。
     PRIMARY KEY（主キー）および FOREIGN KEY（外部キー）制約を含みます。
+    初期gov管理者アカウントも作成します。
     """
     db_name = 'database.db'
     
@@ -50,6 +53,15 @@ def create_database_with_all_tables():
         );
         """)
 
+        # 3.5. 認証情報テーブル (Credential)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Credential (
+            credential_id INTEGER PRIMARY KEY,
+            hashed_password TEXT NOT NULL,
+            created_at TEXT
+        );
+        """)
+
         # 4. メンバーテーブル (Members) - Special_notes に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Members (
@@ -72,17 +84,19 @@ def create_database_with_all_tables():
         );
         """)
 
-        # 6. コミュニティテーブル (Communities) - Members に依存
+        # 6. コミュニティテーブル (Communities) - Members と Credential に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Communities (
             community_id INTEGER PRIMARY KEY,
             member_id INTEGER,
+            credential_id INTEGER NOT NULL UNIQUE,
             name TEXT,
             latitude REAL,
             longitude REAL,
             member_count INTEGER,
             created_at TEXT,
-            FOREIGN KEY (member_id) REFERENCES Members (member_id)
+            FOREIGN KEY (member_id) REFERENCES Members (member_id),
+            FOREIGN KEY (credential_id) REFERENCES Credential (credential_id)
         );
         """)
 
@@ -113,9 +127,26 @@ def create_database_with_all_tables():
         );
         """)
 
+        # 9. 政府ユーザーテーブル (GovUser) - Credential に依存
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS GovUser (
+            gov_user_id INTEGER PRIMARY KEY,
+            username TEXT NOT NULL UNIQUE,
+            credential_id INTEGER NOT NULL UNIQUE,
+            email TEXT,
+            full_name TEXT,
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT,
+            FOREIGN KEY (credential_id) REFERENCES Credential (credential_id)
+        );
+        """)
+
         # 変更をコミット（保存）
         conn.commit()
-        print("全8テーブルが正常に作成または確認されました。")
+        print("全テーブルが正常に作成または確認されました。")
+
+        # --- 初期gov管理者アカウントの作成 ---
+        create_initial_gov_admin(cursor, conn)
 
     except sqlite3.Error as e:
         print(f"データベース操作中にエラーが発生しました: {e}")
@@ -125,6 +156,52 @@ def create_database_with_all_tables():
         if conn:
             conn.close()
             print("データベース接続をクローズしました。")
+
+
+def create_initial_gov_admin(cursor, conn):
+    """初期gov管理者アカウントを作成"""
+    import bcrypt
+    
+    # 既存のgov_adminユーザーをチェック
+    cursor.execute("SELECT gov_user_id FROM GovUser WHERE username = 'gov_admin'")
+    existing_user = cursor.fetchone()
+    
+    if existing_user:
+        print("初期gov管理者アカウント 'gov_admin' は既に存在します。")
+        return
+    
+    # 環境変数からパスワードを取得、なければデフォルト値
+    default_password = os.getenv("GOV_ADMIN_PASSWORD", "gov_admin_pass")
+    
+    # パスワードをハッシュ化
+    password_bytes = default_password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    hashed_password = hashed.decode('utf-8')
+    
+    # 現在時刻
+    created_at = datetime.now().isoformat()
+    
+    # Credentialレコードを作成
+    cursor.execute("""
+    INSERT INTO Credential (hashed_password, created_at)
+    VALUES (?, ?)
+    """, (hashed_password, created_at))
+    
+    credential_id = cursor.lastrowid
+    
+    # GovUserレコードを作成
+    cursor.execute("""
+    INSERT INTO GovUser (username, credential_id, email, full_name, is_active, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, ("gov_admin", credential_id, "admin@gov.example.com", "Government Administrator", 1, created_at))
+    
+    conn.commit()
+    print(f"初期gov管理者アカウント 'gov_admin' を作成しました。")
+    print(f"  ユーザー名: gov_admin")
+    print(f"  パスワード: {default_password}")
+    print(f"  注意: 本番環境では環境変数 GOV_ADMIN_PASSWORD を設定してください。")
+
 
 # --- スクリプトの実行 ---
 if __name__ == "__main__":

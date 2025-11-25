@@ -2,9 +2,27 @@ from sqlalchemy.orm import Session
 from db import models, schemas
 from typing import Type, TypeVar, Generic
 from pydantic import BaseModel
+import bcrypt
 
 from db.session import engine
 from db import models
+
+
+def hash_password(plain_password: str) -> str:
+    """平文パスワードをハッシュ化"""
+    password_bytes = plain_password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """平文パスワードとハッシュを検証"""
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
+
+
 # --- 汎用的な Update (setattr) ロジック ---
 def update_db_item(db_item: models.Base, item_update: BaseModel):
     """
@@ -177,7 +195,18 @@ def get_communities(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Communities).offset(skip).limit(limit).all()
 
 def create_community(db: Session, community: schemas.CommunitiesCreate):
-    db_community = models.Communities(**community.model_dump())
+    # 1. Credential を先に作成
+    credential_data = schemas.CredentialCreate(
+        password=community.password,
+        created_at=community.created_at
+    )
+    db_credential = create_credential(db, credential_data)
+    
+    # 2. コミュニティデータから password を除外して Communities を作成
+    community_dict = community.model_dump(exclude={"password"})
+    community_dict["credential_id"] = db_credential.credential_id
+    
+    db_community = models.Communities(**community_dict)
     db.add(db_community)
     db.commit()
     db.refresh(db_community)
@@ -257,3 +286,86 @@ def delete_support_request(db: Session, request_id: int):
         db.delete(db_item)
         db.commit()
     return db_item
+
+
+# --- 9. Credential ---
+
+def create_credential(db: Session, credential: schemas.CredentialCreate):
+    """パスワードをハッシュ化して Credential レコードを作成"""
+    hashed_pwd = hash_password(credential.password)
+    db_credential = models.Credential(
+        hashed_password=hashed_pwd,
+        created_at=credential.created_at
+    )
+    db.add(db_credential)
+    db.commit()
+    db.refresh(db_credential)
+    return db_credential
+
+
+def get_credential(db: Session, credential_id: int):
+    return db.query(models.Credential).filter(
+        models.Credential.credential_id == credential_id
+    ).first()
+
+
+def authenticate_community(db: Session, community_id: int, password: str):
+    """コミュニティIDとパスワードで認証"""
+    community = get_community(db, community_id)
+    if not community:
+        return None
+    credential = get_credential(db, community.credential_id)
+    if not credential:
+        return None
+    if not verify_password(password, credential.hashed_password):
+        return None
+    return community
+
+
+# --- 10. GovUser ---
+
+def get_gov_user(db: Session, gov_user_id: int):
+    return db.query(models.GovUser).filter(models.GovUser.gov_user_id == gov_user_id).first()
+
+
+def get_gov_user_by_username(db: Session, username: str):
+    return db.query(models.GovUser).filter(models.GovUser.username == username).first()
+
+
+def get_gov_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.GovUser).offset(skip).limit(limit).all()
+
+
+def create_gov_user(db: Session, gov_user: schemas.GovUserCreate):
+    """パスワードをハッシュ化してGovUserレコードを作成"""
+    # 1. Credential を先に作成
+    credential_data = schemas.CredentialCreate(
+        password=gov_user.password,
+        created_at=gov_user.created_at
+    )
+    db_credential = create_credential(db, credential_data)
+    
+    # 2. GovUserデータから password を除外して GovUser を作成
+    gov_user_dict = gov_user.model_dump(exclude={"password"})
+    gov_user_dict["credential_id"] = db_credential.credential_id
+    
+    db_gov_user = models.GovUser(**gov_user_dict)
+    db.add(db_gov_user)
+    db.commit()
+    db.refresh(db_gov_user)
+    return db_gov_user
+
+
+def authenticate_gov_user(db: Session, username: str, password: str):
+    """govユーザー名とパスワードで認証"""
+    gov_user = get_gov_user_by_username(db, username)
+    if not gov_user:
+        return None
+    credential = get_credential(db, gov_user.credential_id)
+    if not credential:
+        return None
+    if not verify_password(password, credential.hashed_password):
+        return None
+    if not gov_user.is_active:
+        return None
+    return gov_user

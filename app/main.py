@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse 
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError 
 from db.session import engine
 from db import models
@@ -12,6 +13,15 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="CoCoIRU API",
     version="1.0.0"
+)
+
+# CORS設定
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 開発環境用。本番環境では特定のオリジンを指定してください
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.exception_handler(IntegrityError)
