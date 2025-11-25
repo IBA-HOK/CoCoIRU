@@ -1,16 +1,14 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
-    items,
-    special_notes,
-    shelter_info,
-    members,
-    request_content,
-    communities,
-    shelter,
+    items, 
+    special_notes, 
+    shelter_info, 
+    members, 
+    request_content, 
+    communities, 
+    shelter, 
     support_request,
     gnss,
-    login,
-    token,
     government
 )
 
@@ -34,9 +32,5 @@ api_router.include_router(shelter.router, prefix="/shelter", tags=["Shelter"])
 api_router.include_router(support_request.router, prefix="/support_requests", tags=["Support Requests"])
 # 9. Additional Endpoints
 api_router.include_router(gnss.router, prefix="/gnss", tags=["GNSS"])
-# 10. Login and User Management
-api_router.include_router(login.router, prefix="/login", tags=["login"])
-# 11. Token issuance
-api_router.include_router(token.router, prefix="/token", tags=["Auth"])
-# 12. Government Dashboard
+# 10. Government Dashboard
 api_router.include_router(government.router, prefix="/government", tags=["Government Dashboard"])

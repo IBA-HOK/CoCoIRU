@@ -25,12 +25,6 @@ npm run dev
 npm run dev -- --open
 ```
 
-### Login sample route
-
-- Access `http://localhost:5173/login` (default dev port) to open the new login form.
-- Set `VITE_API_BASE` in `.env` to point at your FastAPI host (defaults to `http://localhost:8000`).
-- The form submits `username` and `password` to `${VITE_API_BASE}/api/v1/token` using the OAuth2 password flow format and shows the returned token.
-
 ## Building
 
 To create a production version of your app:

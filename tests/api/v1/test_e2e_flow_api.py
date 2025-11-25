@@ -41,12 +41,7 @@ def test_e2e_create_support_request_flow(client: TestClient):
     # 4. コミュニティ (Communities) を作成
     response_comm = client.post(
         "/api/v1/communities/",
-        json={
-            "name": "E2E Test Community",
-            "member_id": member_id,
-            "member_count": 10,
-            "password": "E2E-Pass-123",
-        }
+        json={"name": "E2E Test Community", "member_id": member_id, "member_count": 10}
     )
     assert response_comm.status_code == 200
     community_id = response_comm.json()["community_id"]
