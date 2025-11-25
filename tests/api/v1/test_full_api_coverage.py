@@ -23,11 +23,8 @@ def create_member(client, special_notes_id):
     return r
 
 
-def create_community(client, member_id, password="TestPass123"):
-    r = client.post(
-        "/api/v1/communities/",
-        json={"name": "C1", "member_id": member_id, "member_count": 5, "password": password},
-    )
+def create_community(client, member_id):
+    r = client.post("/api/v1/communities/", json={"name": "C1", "member_id": member_id, "member_count": 5})
     return r
 
 
@@ -131,10 +128,7 @@ def test_members_crud_and_fk(client, db_session):
 ### Communities (depends on Members)
 def test_communities_crud_and_fk(client, db_session):
     # invalid FK first
-    r = client.post(
-        "/api/v1/communities/",
-        json={"name": "X", "member_id": 9999, "password": "Invalid123"},
-    )
+    r = client.post("/api/v1/communities/", json={"name": "X", "member_id": 9999})
     assert r.status_code == 409
     db_session.rollback()
 
