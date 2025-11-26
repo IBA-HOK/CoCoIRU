@@ -235,12 +235,23 @@
         font-weight: bold;
         text-transform: uppercase;
     }
-    .status-pending { background-color: #ffcc80; color: #e65100; }
-    .status-processing { background-color: #b3e5fc; color: #0277bd; }
-    .status-completed { background-color: #c8e6c9; color: #2e7d32; }
+    .status-pending { 
+        background-color: #ffcc80; 
+        color: #e65100; 
+    }
+    .status-processing { 
+        background-color: #b3e5fc; 
+        color: #0277bd; 
+    }
+    .status-completed { 
+        background-color: #c8e6c9; 
+        color: #2e7d32; 
+    }
 
     /* ボタン */
-    .action-col { text-align: center; }
+    .action-col { 
+        text-align: center; 
+    }
     .action-btn {
         background-color: #009688;
         color: white;
@@ -251,7 +262,9 @@
         font-weight: bold;
         transition: background 0.2s;
     }
-    .action-btn:hover { background-color: #00796b; }
+    .action-btn:hover { 
+        background-color: #00796b; 
+    }
     .action-btn:disabled {
         background-color: #cfd8dc;
         color: #90a4ae;

@@ -290,38 +290,98 @@
 
 <style>
     /* ベーススタイル */
-    h1 { color: #00796b; border-bottom: 2px solid #00796b; padding-bottom: 10px; margin-bottom: 10px; }
-    .subtitle { font-size: 1.1em; color: #555; margin-bottom: 20px; }
+    h1 { 
+        color: #00796b; 
+        border-bottom: 2px solid #00796b; 
+        padding-bottom: 10px;
+        margin-bottom: 10px; 
+    }
+    .subtitle { 
+        font-size: 1.1em; 
+        color: #555; 
+        margin-bottom: 20px; 
+    }
 
     /* 切り替えボタン */
-    .view-switch-container { margin-bottom: 20px; }
+    .view-switch-container { 
+        margin-bottom: 20px; 
+    }
     .switch-btn {
-        padding: 10px 20px; margin-right: 10px; border: 1px solid #ccc;
-        background-color: #f9f9f9; cursor: pointer; border-radius: 4px; font-size: 1em;
+        padding: 10px 20px; 
+        margin-right: 10px; 
+        border: 1px solid #ccc;
+        background-color: #f9f9f9; 
+        cursor: pointer; 
+        border-radius: 4px; 
+        font-size: 1em;
         transition: background-color 0.2s;
     }
-    .switch-btn:hover { background-color: #e0f2f1; }
-    .switch-btn.active { background-color: #00796b; color: white; border-color: #00796b; font-weight: bold; }
+    .switch-btn:hover { 
+        background-color: #e0f2f1; 
+    }
+    .switch-btn.active { 
+        background-color: #00796b; 
+        color: white; 
+        border-color: #00796b; 
+        font-weight: bold; 
+    }
 
     /* テーブル */
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    th, td { border: 1px solid #ddd; padding: 12px 15px; text-align: left; }
-    th { background-color: #e0f7fa; color: #004d40; font-weight: 600; }
-    .status-header { width: 180px; }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 10px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    }
+    th, td { 
+        border: 1px solid #ddd; 
+        padding: 12px 15px; 
+        text-align: left; 
+    }
+    th { 
+        background-color: #e0f7fa; 
+        color: #004d40; 
+        font-weight: 600; 
+    }
+    .status-header {
+        width: 180px; 
+    }
 
     /* 行のホバーとリンク */
-    .clickable-row { cursor: pointer; transition: background-color 0.1s; }
-    .clickable-row:hover { background-color: #f1f8e9; }
-    .link-text { color: #0288d1; font-weight: bold; text-decoration: none; }
-    .link-text:hover { text-decoration: underline; }
+    .clickable-row { 
+        cursor: pointer; 
+        transition: background-color 0.1s; 
+    }
+    .clickable-row:hover { 
+        background-color: #f1f8e9; 
+    }
+    .link-text { 
+        color: #0288d1; 
+        font-weight: bold; 
+        text-decoration: none; 
+    }
+    .link-text:hover { 
+        text-decoration: underline; 
+    }
 
     /* バッジ */
     .pending-badge {
-        padding: 4px 10px; border-radius: 12px; background-color: #ffcc80; color: #e65100; font-weight: bold;
+        padding: 4px 10px; 
+        border-radius: 12px; 
+        background-color: #ffcc80; 
+        color: #e65100; 
+        font-weight: bold;
     }
-    .item-badge { background-color: #ff9800; color: white; }
+    .item-badge { 
+        background-color: #ff9800; 
+        color: white; 
+    }
     .ok-badge {
-        padding: 4px 10px; border-radius: 12px; background-color: #c8e6c9; color: #2e7d32; font-size: 0.9em;
+        padding: 4px 10px; 
+        border-radius: 12px; 
+        background-color: #c8e6c9; 
+        color: #2e7d32; 
+        font-size: 0.9em;
     }
     .sortable {
         cursor: pointer;
