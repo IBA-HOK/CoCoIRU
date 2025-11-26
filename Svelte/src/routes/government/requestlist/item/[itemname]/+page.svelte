@@ -6,7 +6,6 @@
         number: number;
         unit: string | null;
         created_at: string | null;
-        // ...他のフィールド
     }
 
     interface LoadData {
@@ -18,6 +17,48 @@
 
     const itemName = data.itemName;
     const requests = data.requests || [];
+
+    // 並び替え用の状態管理変数
+    let sortKey: string = 'pending'; // 初期値: 未対応数
+    let sortDesc: boolean = true;    // 初期値: 降順 (大きい/新しい順)
+
+    // ソート処理
+    $: sortedRequests = [...requests].sort((a, b) => {
+        let valA: any, valB: any;
+
+        if (sortKey === 'number') {
+            valA = a.number || 0;
+            valB = b.number || 0;
+        } else if (sortKey === 'status') {
+            valA = a.status;
+            valB = b.status;
+        } else if (sortKey === 'time') {
+            valA = a.created_at || '';
+            valB = b.created_at || '';
+        }
+
+        if (valA < valB) return sortDesc ? 1 : -1;
+        if (valA > valB) return sortDesc ? -1 : 1;
+        return 0;
+    })
+
+    // ソートハンドラ
+    function handleSort(key: string) {
+        if (sortKey === key) {
+            sortDesc = !sortDesc; // 同じキーなら昇順/降順を反転
+        } else {
+            sortKey = key;
+            sortDesc = true; // 新しいキーなら降順リセット (ID以外は降順スタートが見やすい場合が多い)
+             // IDの場合は昇順スタートの方が自然かもしれないので微調整
+            if (key === 'id') sortDesc = false;
+        }
+    }
+
+    // ソートアイコン取得
+    function getSortIcon(key: string) {
+        if (sortKey !== key) return '↕'; 
+        return sortDesc ? '▼' : '▲';
+    }
 
     // 集計: 未対応の合計個数を計算
     const totalPending = requests
@@ -49,13 +90,19 @@
         <thead>
             <tr>
                 <th>コミュニティ名</th>
-                <th>要請個数</th>
-                <th>ステータス</th>
-                <th>最新の要請日時</th>
+                <th class="sortable" on:click={() => handleSort('number')}>
+                    要請個数 <span class="sort-icon">{getSortIcon('number')}</span>
+                </th>
+                <th class="sortable" on:click={() => handleSort('status')}>
+                    ステータス <span class="sort-icon">{getSortIcon('status')}</span>
+                </th>
+                <th class="sortable" on:click={() => handleSort('time')}>
+                    最新の要請日時 <span class="sort-icon">{getSortIcon('time')}</span>
+                </th>
             </tr>
         </thead>
         <tbody>
-            {#each requests as req (req.request_id)}
+            {#each sortedRequests as req (req.request_id)}
                 <tr>
                     <td class="community-name">{req.community_name || '不明なコミュニティ'}</td>
                     <td>
@@ -150,7 +197,30 @@
         font-weight: bold;
         text-transform: uppercase;
     }
-    .status-pending { background-color: #ffcc80; color: #e65100; }
-    .status-processing { background-color: #b3e5fc; color: #0277bd; }
-    .status-completed { background-color: #c8e6c9; color: #2e7d32; }
+    .status-pending { 
+        background-color: #ffcc80; 
+        color: #e65100; 
+    }
+    .status-processing { 
+        background-color: #b3e5fc; 
+        color: #0277bd; 
+    }
+    .status-completed { 
+        background-color: #c8e6c9; 
+        color: #2e7d32; 
+    }
+
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+    }
+    .sortable:hover {
+        background-color: #b2dfdb;
+    }
+    .sort-icon {
+        font-size: 0.8em;
+        margin-left: 5px;
+        color: #00796b;
+    }
 </style>

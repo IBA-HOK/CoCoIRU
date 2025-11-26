@@ -16,7 +16,6 @@
         community_id: number;
         name: string;
         member_count: number;
-        // 必要に応じて latitude, longitude など
     }
 
     interface LoadData {
@@ -30,6 +29,34 @@
     const community = data.community;
     const requests = data.requests || [];
     const specialNotes = data.specialNotes;
+
+    // 並び替え用の状態管理変数
+    let sortKey: string = 'pending'; // 初期値: 未対応数
+    let sortDesc: boolean = true;    // 初期値: 降順 (大きい/新しい順)
+
+    // ソート処理 
+    $: sortedRequests = [...requests].sort((a, b) => {
+        let valA: any, valB: any;
+
+        if (sortKey === 'number') {
+            valA = a.number || 0;
+            valB = b.number || 0;
+        } else if (sortKey === 'status') {
+            valA = a.status;
+            valB = b.status;
+        } else if (sortKey === 'time') {
+            valA = a.created_at || '';
+            valB = b.created_at || '';
+        } else {
+            valA = a.request_id;
+            valB = b.request_id;
+        }
+
+        if (valA < valB) return sortDesc ? 1 : -1;
+        if (valA > valB) return sortDesc ? -1 : 1;
+        return 0;
+    });
+
 
     // 日時フォーマット
     function formatDate(dateStr: string | null): string {
@@ -45,6 +72,24 @@
             case 'completed': return '完了';
             default: return status;
         }
+    }
+
+    // ソートハンドラ
+    function handleSort(key: string) {
+        if (sortKey === key) {
+            sortDesc = !sortDesc; // 同じキーなら昇順/降順を反転
+        } else {
+            sortKey = key;
+            sortDesc = true; // 新しいキーなら降順リセット (ID以外は降順スタートが見やすい場合が多い)
+             // IDの場合は昇順スタートの方が自然かもしれないので微調整
+            if (key === 'id') sortDesc = false;
+        }
+    }
+
+    // ソートアイコン取得
+    function getSortIcon(key: string) {
+        if (sortKey !== key) return '↕'; 
+        return sortDesc ? '▼' : '▲';
     }
     
     // 「対応」ボタンのアクション (後で実装するためログ出力のみ)
@@ -78,14 +123,20 @@
             <tr>
                 <th>ID</th>
                 <th>品目</th>
-                <th>個数</th>
-                <th>ステータス</th>
-                <th>要請日時</th>
+                <th class="sortable" on:click={() => handleSort('number')}>
+                    個数 <span class="sort-icon">{getSortIcon('number')}</span>
+                </th>
+                <th class="sortable" on:click={() => handleSort('status')}>
+                    ステータス <span class="sort-icon">{getSortIcon('status')}</span>
+                </th>
+                <th class="sortable" on:click={() => handleSort('time')}>
+                    要請日時 <span class="sort-icon">{getSortIcon('time')}</span>
+                </th>
                 <th class="action-col">操作</th>
             </tr>
         </thead>
         <tbody>
-            {#each requests as req (req.request_id)}
+            {#each sortedRequests as req (req.request_id)}
             <tr class="status-row">
                 <td>{req.request_id}</td>
                 <td class="item-name">{req.item_name || '不明'}</td>
@@ -184,12 +235,23 @@
         font-weight: bold;
         text-transform: uppercase;
     }
-    .status-pending { background-color: #ffcc80; color: #e65100; }
-    .status-processing { background-color: #b3e5fc; color: #0277bd; }
-    .status-completed { background-color: #c8e6c9; color: #2e7d32; }
+    .status-pending { 
+        background-color: #ffcc80; 
+        color: #e65100; 
+    }
+    .status-processing { 
+        background-color: #b3e5fc; 
+        color: #0277bd; 
+    }
+    .status-completed { 
+        background-color: #c8e6c9; 
+        color: #2e7d32; 
+    }
 
     /* ボタン */
-    .action-col { text-align: center; }
+    .action-col { 
+        text-align: center; 
+    }
     .action-btn {
         background-color: #009688;
         color: white;
@@ -200,7 +262,9 @@
         font-weight: bold;
         transition: background 0.2s;
     }
-    .action-btn:hover { background-color: #00796b; }
+    .action-btn:hover { 
+        background-color: #00796b; 
+    }
     .action-btn:disabled {
         background-color: #cfd8dc;
         color: #90a4ae;
@@ -226,5 +290,19 @@
         font-size: 1.1em;
         color: #333;
         font-weight: bold;
+    }
+
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+    }
+    .sortable:hover {
+        background-color: #b2dfdb;
+    }
+    .sort-icon {
+        font-size: 0.8em;
+        margin-left: 5px;
+        color: #00796b;
     }
 </style>
