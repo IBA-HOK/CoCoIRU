@@ -1,16 +1,16 @@
-# Webフレームワーク
+# Webフレー�?ワーク
 fastapi
 
-# ASGIサーバー
+# ASGIサーバ�?�
 uvicorn
 
-# データベース (ORM)
+# �?ータベ�?�ス (ORM)
 sqlalchemy
 
-# データバリデーション (スキーマ)
+# �?ータバリ�?ーション (スキー�?)
 pydantic
 
-# テスト用
+# �?スト用
 pytest
 httpx
 
