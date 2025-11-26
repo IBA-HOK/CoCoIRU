@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 	import { Button } from '$lib';
+	import Surface from '$lib/components/Surface.svelte';
   // ボタン
   function homeButtonClick() {
     goto('/community');
@@ -13,7 +14,7 @@
 <div class="container">
   
   <!-- 完了メッセージカード -->
-  <main class="surface">
+  <Surface>
     <h1 class="page-title">申請が完了しました</h1>
     <p class="page-subtitle">ご協力ありがとうございました。</p>
     
@@ -24,16 +25,15 @@
         class="success-image"
       />
     </div>
-  </main>
+  </Surface>
 
   <!-- フッターボタン -->
   <div class="request_footer">
-    <div class="btn-area home-btn">
-      <Button text="はじめに戻る" on:click={homeButtonClick} />
+    <div class="btn-area">
+      <Button text="はじめに戻る" variant="primary" on:click={homeButtonClick} />
     </div>
-    
-    <div class="btn-area login-btn">
-      <Button text="ログインへ" on:click={loginButtonClick} />
+    <div class="btn-area">
+      <Button text="ログインへ" variant="secondary" on:click={loginButtonClick} />
     </div>
   </div>
 
@@ -49,19 +49,6 @@
     min-height: calc(100vh - 4rem);
     justify-content: center;
     padding: 2rem 0;
-  }
-
-  /* カードスタイル */
-  .surface {
-    background-color: var(--card);
-    border-radius: 16px;
-    padding: 40px 24px;
-    text-align: center;
-    
-    box-shadow: 
-      0 2px 4px color-mix(in srgb, var(--shadow), transparent 90%), 
-      0 0 1px color-mix(in srgb, var(--shadow), transparent 85%);
-    border: 1px solid var(--outline-sub);
   }
 
   .page-title {
@@ -101,17 +88,6 @@
   
   .btn-area {
     width: 100%;
-  }
-
-  /* === ボタンのカラーカスタマイズ === */
-
-  .home-btn {
-  }
-
-  .login-btn {
-    --primary: var(--outline-sub);
-    --on-primary: var(--text);
-    --primary-container: var(--outline);
   }
 
   /* 画面幅が広いときはボタンを横並びにする */

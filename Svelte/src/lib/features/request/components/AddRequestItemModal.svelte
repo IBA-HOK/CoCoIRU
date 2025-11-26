@@ -95,8 +95,8 @@
 			</div>
 
 			<div class="modal-actions">
-				<Button text="キャンセル" on:click={closeModal} />
-				<Button text="追加" on:click={addItem} />
+				<Button text="キャンセル" variant="secondary" on:click={closeModal} />
+				<Button text="追加" variant="primary" on:click={addItem} />
 			</div>
 		</div>
 	</div>
@@ -109,7 +109,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: color-mix(in srgb, var(--md-sys-color-scrim, #000), transparent 40%);
+		background-color: color-mix(in srgb, var(--shadow, #000), transparent 40%);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -128,7 +128,7 @@
 		max-width: 90%;
 		z-index: 1001;
 		cursor: default;
-		border: 1px solid var(--md-sys-color-outline-variant);
+		border: 1px solid var(--outline-sub);
 	}
 
 	h2 {
@@ -173,4 +173,5 @@
 		justify-content: flex-end;
 		gap: 1rem;
 	}
+
 </style>
