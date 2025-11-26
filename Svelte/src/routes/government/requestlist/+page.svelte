@@ -48,6 +48,10 @@
     // 表示切り替えのロジック
     let currentView: 'community' | 'item' = 'community';
 
+    // 並び替え用の状態管理変数
+    let sortKey: string = 'pending'; // 初期値: 未対応数
+    let sortDesc: boolean = true;    // 初期値: 降順 (大きい/新しい順)
+
 
     // コミュニティ別集計
     const communityMap = new Map<number, CommunitySummary>();
@@ -115,14 +119,58 @@
         }
     }
 
+    // ソートハンドラ
+    function handleSort(key: string) {
+        if (sortKey === key) {
+            sortDesc = !sortDesc; // 同じキーなら昇順/降順を反転
+        } else {
+            sortKey = key;
+            sortDesc = true; // 新しいキーなら降順リセット
+        }
+    }
+
+    // ソートアイコン取得
+    function getSortIcon(key: string) {
+        if (sortKey !== key) return '↕'; 
+        return sortDesc ? '▼' : '▲';
+    }
 
     // コミュニティ一覧 (未対応数が多い順)
-    const communitySummaries = Array.from(communityMap.values())
-        .sort((a, b) => b.total_pending - a.total_pending);
+    $: communitySummaries = Array.from(communityMap.values())
+        .sort((a, b) => {
+            let valA: any, valB: any;
+            if (sortKey === 'time') {
+                valA = a.latest_request_time || '';
+                valB = b.latest_request_time || '';
+            } else {
+                // default: pending (未対応数)
+                valA = a.total_pending;
+                valB = b.total_pending;
+            }
+            if (valA < valB) return sortDesc ? 1 : -1;
+            if (valA > valB) return sortDesc ? -1 : 1;
+            return 0;
+        });
 
     // 品目一覧 (未対応数が多い順)
-    const itemSummaries = Array.from(itemMap.values())
-        .sort((a, b) => b.total_pending - a.total_pending);
+    $: itemSummaries = Array.from(itemMap.values())
+        .sort((a, b) => {
+            let valA: any, valB: any;
+            if (sortKey === 'count') { // 要請元数
+                valA = a.community_ids.size;
+                valB = b.community_ids.size;
+            } else if (sortKey === 'time') { // 最新日時
+                valA = a.latest_request_time || '';
+                valB = b.latest_request_time || '';
+            } else {
+                // default: pending (未対応数)
+                valA = a.total_pending;
+                valB = b.total_pending;
+            }
+            if (valA < valB) return sortDesc ? 1 : -1;
+            if (valA > valB) return sortDesc ? -1 : 1;
+            return 0;
+        });
 
     
     // 日時フォーマット (null安全)
@@ -148,7 +196,7 @@
         <button 
             class="switch-btn" 
             class:active={currentView === 'community'} 
-            on:click={() => currentView = 'community'}
+            on:click={() => { currentView = 'community'; sortKey = 'pending'; sortDesc = true; }}
         >
             🏢 コミュニティ別リスト
         </button>
@@ -156,7 +204,7 @@
         <button 
             class="switch-btn" 
             class:active={currentView === 'item'} 
-            on:click={() => currentView = 'item'}
+            on:click={() => { currentView = 'item'; sortKey = 'pending'; sortDesc = true; }}
         >
             📦 品目別集計
         </button>
@@ -169,8 +217,14 @@
                 <thead>
                     <tr>
                         <th>コミュニティ名</th>
-                        <th class="status-header">未対応要請数</th>
-                        <th>最新の要請日時</th>
+
+                        <th class="sortable" on:click={() => handleSort('pending')}>
+                            未対応要請数 <span class="sort-icon">{getSortIcon('pending')}</span>
+                        </th>
+                        
+                        <th class="sortable" on:click={() => handleSort('time')}>
+                            最新の要請日時 <span class="sort-icon">{getSortIcon('time')}</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,9 +250,17 @@
                 <thead>
                     <tr>
                         <th>品目名</th>
-                        <th class="status-header">未対応 合計数量</th>
-                        <th>要請元数</th>
-                        <th>最新の要請日時</th>
+                        <th class="sortable status-header" on:click={() => handleSort('pending')}>
+                            未対応 合計数量 <span class="sort-icon">{getSortIcon('pending')}</span>
+                        </th>
+                        
+                        <th class="sortable" on:click={() => handleSort('count')}>
+                            要請元数 <span class="sort-icon">{getSortIcon('count')}</span>
+                        </th>
+                        
+                        <th class="sortable" on:click={() => handleSort('time')}>
+                            最新の要請日時 <span class="sort-icon">{getSortIcon('time')}</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,5 +322,18 @@
     .item-badge { background-color: #ff9800; color: white; }
     .ok-badge {
         padding: 4px 10px; border-radius: 12px; background-color: #c8e6c9; color: #2e7d32; font-size: 0.9em;
+    }
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+    }
+    .sortable:hover {
+        background-color: #b2dfdb;
+    }
+    .sort-icon {
+        font-size: 0.8em;
+        margin-left: 5px;
+        color: #00796b;
     }
 </style>
