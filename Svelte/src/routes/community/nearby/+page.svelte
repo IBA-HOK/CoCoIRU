@@ -1,5 +1,6 @@
 <script lang="ts">
 </script>
+
 <div class="dashboard-container">
     <div class="sidebar">
         <h2>コミュニティ一覧</h2>
@@ -33,76 +34,50 @@
         height: 80vh;
         box-sizing: border-box;
     }
-  
-  .sidebar {
-    width: 300px;
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
 
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+    .sidebar {
+        width: 300px;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-  .map-wrapper {
-    flex: 1;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
 
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+    .map-wrapper {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
 
-  .mode-toggle button {
-    width: 100%;
-    padding: 10px;
-    background: #fff;
-    border: 2px solid #00796b;
-    color: #00796b;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+    .search-btn {
+        background: #333;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: auto;
+    }
 
-  .mode-toggle button.active {
-    background: #00796b;
-    color: white;
-  }
+    .help-text {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 5px;
+    }
 
-  .search-btn {
-    background: #333;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: auto;
-  }
-
-  .help-text {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 5px;
-  }
-  
-  h1, h2 { margin: 0 0 10px 0; color: #333; }
+    h1, h2 { 
+        margin: 0 0 10px 0; 
+        color: #333; 
+    }
 
     
     /* 地図枠セクション */
