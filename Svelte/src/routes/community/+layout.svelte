@@ -2,9 +2,6 @@
   <meta name="robots" content="noindex" />
   <title>コミュニティ</title>
 </svelte:head>
-<script>
-  import '$lib/theme.css';
-</script>
 <header class="community-header" role="banner">
   <div class="container">
     <h1 class="title">コミュニティ</h1>
@@ -15,9 +12,7 @@
   </div>
 </header>
 
-<div class="page-wrapper">
-  <slot />
-</div>
+<slot />
 
 <style>
   .community-header {

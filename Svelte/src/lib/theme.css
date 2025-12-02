@@ -136,6 +136,7 @@
   --card: var(--md-sys-color-surface-container);
   /* カードにおいたカードの背景 */
   --card-high: var(--md-sys-color-surface-container-high);
+  --card-low: var(--md-sys-color-surface-container-low);
   /* 枠線の色 */
   --outline: var(--md-sys-color-outline);
   /* サブの枠線の色 */
