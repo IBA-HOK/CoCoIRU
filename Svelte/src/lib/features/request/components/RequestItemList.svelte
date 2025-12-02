@@ -23,6 +23,7 @@
       <span class="item-text">{item.text}</span>
       <div class="item-quantity">
         <span>{item.value}</span>
+        <span class="unit">個</span>
       </div>
     </div>
   {/each}
@@ -40,24 +41,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #e0ffe0;
-    border: 1px solid #c0e0c0;
+    background-color: var(--primary-container);
+    border: 1px solid color-mix(in srgb, var(--primary), transparent 70%);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     font-size: 1.1rem;
+    color: var(--on-primary-container);
   }
 
   .item-text {
     font-weight: bold;
+    word-break: break-word;
+    margin-right: 8px;
   }
 
   .item-quantity {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--primary);
+    color: var(--on-primary);
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
+  }
+
+  .unit {
+    font-size: 0.8rem;
+    opacity: 0.9;
   }
 </style>

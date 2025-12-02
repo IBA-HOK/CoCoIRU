@@ -1,0 +1,53 @@
+<script lang="ts">
+	export let value: string = '';
+</script>
+
+<div class="note-input-container">
+	<label for="note-textarea" class="label">特記事項</label>
+	<div class="input-wrapper">
+		<textarea id="note-textarea" bind:value placeholder="ご要望があればご記入ください" rows="3"
+		></textarea>
+	</div>
+</div>
+
+<style>
+	.note-input-container {
+		width: 100%;
+	}
+
+	.label {
+		display: block;
+		font-size: 0.9rem;
+		font-weight: 500;
+		margin-bottom: 8px;
+		color: var(--text);
+	}
+
+	textarea {
+		width: 100%;
+		box-sizing: border-box;
+		font-size: 0.95rem;
+		padding: 10px;
+		border-radius: 8px;
+
+		background-color: var(--bg);
+		border: 1px solid var(--outline);
+
+		resize: none;
+		transition: all 0.2s ease;
+		outline: none;
+		font-family: inherit;
+		color: var(--text);
+	}
+
+	textarea:focus {
+		background-color: var(--card);
+		border-color: var(--primary);
+		box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary), transparent 85%);
+	}
+
+	textarea::placeholder {
+		color: var(--text-sub);
+		opacity: 0.7;
+	}
+</style>

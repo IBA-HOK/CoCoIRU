@@ -13,7 +13,7 @@
   }
 
   export let markers: MarkerInfo[] = [];
-  export let initialCenter: [number, number] = [136.884, 35.170];
+  export let center: [number, number] = [136.884, 35.170];
   export let initialZoom: number = 10;
   export let radiusKm: number = 5;
   export let isSelectionMode = false; // 範囲指定モードかどうか
@@ -77,8 +77,21 @@
 
   // --- 半径や中心の監視 ---
   $: if (map && !isDragging) {
-     // ドラッグ中でなければ、Propsの変更を地図に反映
-     updateCircle(initialCenter, radiusKm);
+    // 円の位置を更新
+    updateCircle(center, radiusKm);
+
+    // 地図の中心も移動させる (現在地と大きく違う場合のみ)
+    const currentCenter = map.getCenter();
+    const dist = Math.abs(currentCenter.lng - center[0]) + Math.abs(currentCenter.lat - center[1]);
+    
+    // わずかなズレは無視し、大きく変わったときだけカメラを動かす
+    if (dist > 0.001) {
+      map.flyTo({
+        center: center,
+        speed: 1.2, // アニメーション速度
+        curve: 1.4
+      });
+    }
   }
 
   onMount(() => {
@@ -102,7 +115,7 @@
           maxzoom: 19
         }]
       },
-      center: initialCenter,
+      center: center,
       zoom: initialZoom
     });
 
@@ -146,7 +159,7 @@
         }
       });
       // 初期描画
-      updateCircle(initialCenter, radiusKm);
+      updateCircle(center, radiusKm);
       // --- マーカー配置 ---
       renderMarkers();
     });
@@ -193,49 +206,48 @@
     });
   });
   // マーカーを再描画する関数
-  function renderMarkers() {
-    // 既存マーカーの削除ロジックを入れるのが理想ですが、今回は簡易的に追加のみ
+function renderMarkers() {
     markers.forEach((markerInfo) => {
-      // マーカー要素を作成
-      const el = document.createElement('div');
-      el.className = 'custom-marker';
-      el.style.backgroundImage = 'url(https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png)'; // 仮アイコン
-      el.style.width = '30px';
-      el.style.height = '30px';
-      el.style.backgroundSize = 'cover';
-      el.style.cursor = 'pointer';
+      
+      // 1. まずマーカーを作成して地図に追加し、変数 marker に入れる
+      const marker = new maplibregl.Marker()
+        .setLngLat([markerInfo.lng, markerInfo.lat])
+        .addTo(map);
 
-      // --- イベント: マウスオーバーで概要 (Popup) ---
-      el.addEventListener('mouseenter', () => {
+      // 2. 生成されたマーカーの HTML要素(DOM) を取得する
+      const element = marker.getElement();
+      
+      // 3. マウスカーソルを指マークにする（クリックできる感を出す）
+      element.style.cursor = 'pointer';
+
+      // 4. その要素にイベントリスナーを直接くっつける
+
+      // --- マウスオーバー: 概要ポップアップ表示 ---
+      element.addEventListener('mouseenter', () => {
         if (!map) return;
         hoverPopup = new maplibregl.Popup({
             closeButton: false,
             closeOnClick: false,
-            offset: 15
+            offset: 25 // ピンの頭上に表示されるよう調整
         })
         .setLngLat([markerInfo.lng, markerInfo.lat])
-        .setHTML(`<div style="font-weight:bold;">${markerInfo.caption}</div>`)
+        .setHTML(`<div style="font-weight:bold; padding:4px;">${markerInfo.caption}</div>`)
         .addTo(map);
       });
 
-      el.addEventListener('mouseleave', () => {
+      // --- マウスリーブ: ポップアップ削除 ---
+      element.addEventListener('mouseleave', () => {
         if (hoverPopup) {
             hoverPopup.remove();
             hoverPopup = null;
         }
       });
 
-      // --- イベント: クリックで詳細モーダル ---
-      el.addEventListener('click', () => {
-        // 親へ通知
+      // --- クリック: 詳細モーダル表示 (親へ通知) ---
+      element.addEventListener('click', (e) => {
+        e.stopPropagation(); // 地図のクリックイベント等が暴発しないように止める
         dispatch('markerClick', markerInfo);
       });
-
-      // マーカー追加 (デフォルトのピンを使う場合)
-      new maplibregl.Marker() // el を渡せばカスタムアイコンになります
-        .setLngLat([markerInfo.lng, markerInfo.lat])
-        // .setPopup... // クリック時のPopupは無効化してModalにするためセットしない
-        .addTo(map);
     });
   }
 
