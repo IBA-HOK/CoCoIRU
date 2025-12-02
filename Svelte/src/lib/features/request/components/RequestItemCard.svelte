@@ -5,13 +5,33 @@
 	 */
 
 	import { requestItems } from '$lib/features/request/requestItems';
+	import { createEventDispatcher } from 'svelte';
 	// item は通常モードでは必須、追加ボタンモードでは不要なので optional にします
 	export let item: { text: string; value: number } | undefined = undefined;
 
 	// 追加ボタンとして表示するかどうかのフラグ
 	export let isAddButton: boolean = false;
 
+	/**
+	 * @description 削除可能かどうかのフラグ
+	 * 親コンポーネントから設定され、falseの場合、削除ボタンを表示せず機能も無効化する
+	 */
+	export let isDeletable: boolean = true;
+
 	const maxQuantity = 100;
+
+	// ★ ディスパッチャーの初期化
+	const dispatch = createEventDispatcher();
+
+	// ★ 削除ボタンがクリックされたときに親にイベントを伝える関数
+	function removeItem() {
+		// isDeletableがfalseの場合は処理を中断し、削除されないようにする
+		if (!isDeletable) {
+			return;
+		}
+		// 'remove'という名前でイベントをディスパッチ
+		dispatch('remove');
+	}
 </script>
 
 <div
@@ -23,6 +43,13 @@
 	tabindex="0"
 	on:keypress
 >
+
+    {#if !isAddButton && isDeletable}
+		<button class="delete-button" on:click|stopPropagation={removeItem} aria-label="アイテムを削除">
+			&times;
+		</button>
+	{/if}
+
 	<div class="card-content">
 		{#if isAddButton}
 			<span class="plus-icon">＋</span>
@@ -149,5 +176,33 @@
 
 	.selected .unit {
 		color: var(--on-primary-container);
+	}
+
+	.delete-button {
+		position: absolute; /* 親要素 .card に対して相対的な位置に配置 */
+		top: 4px;
+		right: 4px;
+		background: none;
+		border: none;
+		color: var(--text-sub);
+		font-size: 1.5rem;
+		line-height: 1;
+		padding: 0 8px;
+		cursor: pointer;
+		transition: color 0.2s ease;
+		z-index: 10; /* 他の要素より手前に表示 */
+	}
+
+	.delete-button:hover {
+		color: var(--error);
+	}
+
+	/* カード全体が選択されているときは色を変える */
+	.card.selected .delete-button {
+		color: var(--on-primary-container);
+	}
+
+	.card.selected .delete-button:hover {
+		color: var(--error-container); /* 選択中のカードでも目立つ色に */
 	}
 </style>
