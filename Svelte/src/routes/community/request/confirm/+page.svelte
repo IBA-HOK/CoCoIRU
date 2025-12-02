@@ -1,23 +1,108 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { requestItems } from '$lib/features/request/requestItems';
-	import { Button } from '$lib';
+  import { Button } from '$lib';
   import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
+  import type { RequestItem } from '$lib/features/request/requestItems'; // ★追加：型
 
   // 特記事項
   let notes = '';
 
-  $: selectedItems = $requestItems.filter(requestItems => requestItems.value > 0);
+  // ★追加：型を付ける
+  let selectedItems: RequestItem[] = [];
 
-  // ボタン
+  // value > 0 の物資のみ抽出
+  $: selectedItems = $requestItems.filter(
+    (item: RequestItem) => item.value > 0   // ★型を追加
+  );
+
+  // ★追加：API URL
+  const API_BASE = 'http://localhost:8000/api/v1';
+
+  // ★追加：community_id（ログインしている住民IDなどに置き換え可）
+  let communityId = 1;
+
+  // ---------------------------------------------------------
+  // ★ 1つの物資を保存する処理（RequestContent → SupportRequest）
+  // ---------------------------------------------------------
+  async function createOneRequest(item: RequestItem) {
+    // (1) RequestContent を保存
+    const rcPayload = {
+      items_id: item.id,
+      number: item.value,
+      other_note: notes
+    };
+
+    const rcRes = await fetch(`${API_BASE}/request_content/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(rcPayload)
+    });
+
+    if (!rcRes.ok) {
+      console.error(await rcRes.text());
+      throw new Error('RequestContent 作成失敗');
+    }
+
+    const rcData = await rcRes.json();
+    const request_content_id = rcData.request_content_id;
+
+    // (2) SupportRequest を保存
+    const srPayload = {
+      community_id: communityId,
+      request_content_id,
+      status: 'pending'
+    };
+
+    const srRes = await fetch(`${API_BASE}/support_requests/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(srPayload)
+    });
+
+    if (!srRes.ok) {
+      console.error(await srRes.text());
+      throw new Error('SupportRequest 作成失敗');
+    }
+
+    return await srRes.json(); // request_id などを返す
+  }
+
+  // ---------------------------------------------------------
+  // ★ 全物資をループして保存
+  // ---------------------------------------------------------
+  async function saveAllRequests() {
+    const results = [];
+
+    for (const item of selectedItems) {
+      const result = await createOneRequest(item);
+      results.push(result);
+    }
+
+    return results;
+  }
+
+  // ---------------------------------------------------------
+  // ボタン処理
+  // ---------------------------------------------------------
   function backButtonClick() {
     goto('/community/request');
   }
-  function orderButtonClick() {
-    // 仮の処理(todo: 実際のデータベース処理を実装)
-    console.log('注文内容:', selectedItems);
-    console.log('特記事項:', notes);
-    goto('/community/request/complete'); 
+
+  async function orderButtonClick() {
+    try {
+      const results = await saveAllRequests();
+      console.log('保存された申請:', results);
+
+      goto('/community/request/complete');
+    } catch (err) {
+      console.error(err);
+      alert('申請処理中にエラーが発生しました');
+    }
   }
 </script>
 
