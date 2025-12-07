@@ -29,8 +29,8 @@
     ...data.communities // onMountでAPIから取得したデータ
     .filter(c => c.latitude != null && c.longitude != null) // 座標がないデータは除外
     .map(c => ({
-      lat: c.latitude,
-      lng: c.longitude,
+      lat: c.latitude!,
+      lng: c.longitude!,
       caption: c.name || '名前未設定',
       detail: c // 詳細モーダル用に生のデータを丸ごと渡す
     }))
@@ -48,6 +48,7 @@
   function handleRadiusPreview(event: CustomEvent) {
     // 入力欄の数字だけ更新（APIはまだ叩かない）
     searchRadiusKm = parseFloat(event.detail.toFixed(2));
+    isSelectionMode = false;
   }
 
   // 地図で半径変更確定
