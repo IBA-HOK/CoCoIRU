@@ -24,9 +24,20 @@
 
   function toEdit() { goto('/community/edit'); }
   function toDestroy() { goto('/community/destroy/confirm'); }
+  function doLogout() {
+    if (!confirm('ログアウトしますか？')) return;
+    try { sessionStorage.removeItem('selectedCommunityId'); } catch (e) {}
+    try { sessionStorage.removeItem('editDraft'); } catch (e) {}
+    try { sessionStorage.removeItem('newCommunityDraft'); } catch (e) {}
+    id = '';
+    name = '';
+    count = null;
+    goto('/community');
+  }
 </script>
 
 <main class="page" style="padding:1rem; display:flex; justify-content:center">
+  <div class="force-black-text">
   <section class="card" style="max-width:720px; width:100%">
     <h2>ログイン状態</h2>
     <p><strong>コミュニティID:</strong> {id || '—'}</p>
@@ -36,8 +47,10 @@
     <div class="actions">
       <button class="btn" on:click={toEdit}>コミュニティを編集</button>
       <button class="btn danger" on:click={toDestroy}>コミュニティを破棄</button>
+      <button class="btn" on:click={doLogout}>ログアウト</button>
     </div>
   </section>
+  </div>
 </main>
 
 <style>
@@ -45,4 +58,21 @@
   .actions { display:flex; gap:0.75rem; margin-top:1rem }
   .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer }
   .btn.danger { background:#e74c3c; color:#fff }
+  /* 非操作テキストを黒にする（見出し・段落など）。ボタンは上書きしない */
+  .force-black-text h1,
+  .force-black-text h2,
+  .force-black-text h3,
+  .force-black-text h4,
+  .force-black-text h5,
+  .force-black-text h6,
+  .force-black-text p,
+  .force-black-text span,
+  .force-black-text li,
+  .force-black-text label,
+  .force-black-text strong,
+  .force-black-text em,
+  .force-black-text td,
+  .force-black-text th {
+    color: #000 !important;
+  }
 </style>

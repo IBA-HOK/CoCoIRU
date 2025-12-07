@@ -2,12 +2,20 @@
   <meta name="robots" content="noindex" />
   <title>コミュニティ</title>
 </svelte:head>
+<script>
+  import '$lib/theme.css';
+  import { isLoggedIn } from '$lib/stores/auth';
+</script>
 <header class="community-header" role="banner">
   <div class="container">
     <h1 class="title">コミュニティ</h1>
     <nav class="actions" aria-label="community header actions">
-      <a class="home-btn" href="/">ホーム</a>
-      <a class="login-btn" href="/community">ログイン</a>
+      {#if $isLoggedIn}
+        <a class="home-btn" href="/community/account">ホーム</a>
+      {:else}
+        <a class="home-btn" href="/community/no-account">ホーム</a>
+      {/if}
+      <a class="login-btn" href="/community">トップ</a>
     </nav>
   </div>
 </header>
