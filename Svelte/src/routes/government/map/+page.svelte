@@ -23,15 +23,18 @@
     { lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
   ];
 
-	$: mapMarkers = [
+	// APIデータ (communities) を MapComponent 用の markers 形式に変換
+  $: mapMarkers = [
     ...dummyMarkers, // 先頭にダミーを追加
-    ...data.communities
-      .filter(c => c.latitude != null && c.longitude != null)
-      .map(c => ({
-        lat: c.latitude!,
-        lng: c.longitude!,
-        caption: c.name || '名前未設定'
-      }))
+    ...data.communities // onMountでAPIから取得したデータ
+    .filter(c => c.latitude != null && c.longitude != null) // 座標がないデータは除外
+    .map(c => ({
+      lat: c.latitude,
+      lng: c.longitude,
+      caption: c.name || '名前未設定',
+      detail: c // 詳細モーダル用に生のデータを丸ごと渡す
+    }))
+    .filter(m => m.caption.includes(searchKeyword))
   ];
 	
 	// --- イベントハンドラ ---
@@ -97,7 +100,7 @@
     <div class="map-wrapper">
       <MapComponent 
         markers={mapMarkers}
-        initialCenter={data.mapCenter}
+        center={data.mapCenter}
         initialZoom={11}
         radiusKm={searchRadiusKm}
         bind:isSelectionMode={isSelectionMode}
