@@ -15,8 +15,6 @@
   .page-wrapper {
     background-color: var(--bg);
     color: var(--text);
-    min-height: 100vh;
-    padding: 2rem 1rem;
     box-sizing: border-box;
   }
 </style>
