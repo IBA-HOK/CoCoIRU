@@ -7,6 +7,7 @@
 	import ShelterMap from '$lib/features/government/components/ShelterMap.svelte';
 	// ★作成したサイドバーコンポーネント
 	import ShelterMapSidebar from '$lib/features/government/components/ShelterMapSidebar.svelte';
+	import Surface from '$lib/components/Surface.svelte';
 
 	export let data: PageData;
 
@@ -100,26 +101,31 @@
 <Title titleText="避難所マップ" />
 
 <div class="dashboard-container">
-	<ShelterMapSidebar
-		bind:locationQuery
-		bind:isSearchingLocation
-		bind:searchRadiusKm
-		bind:isSelectionMode
-		bind:searchKeyword
-		on:search={searchLocation}
-	/>
-
+	<div class="sidebar-content">
+		<Surface>
+			<ShelterMapSidebar
+				bind:locationQuery
+				bind:isSearchingLocation
+				bind:searchRadiusKm
+				bind:isSelectionMode
+				bind:searchKeyword
+				on:search={searchLocation}
+			/>
+		</Surface>
+	</div>
 	<div class="main-content">
-		<ShelterMap
-			markers={mapMarkers}
-			{mapCenter}
-			{searchRadiusKm}
-			bind:isSelectionMode
-			on:markerClick={handleMarkerClick}
-			on:radiusChangePreview={handleRadiusPreview}
-			on:radiusChange={handleRadiusChange}
-			on:centerChange={handleCenterChange}
-		/>
+		<Surface>
+			<ShelterMap
+				markers={mapMarkers}
+				{mapCenter}
+				{searchRadiusKm}
+				bind:isSelectionMode
+				on:markerClick={handleMarkerClick}
+				on:radiusChangePreview={handleRadiusPreview}
+				on:radiusChange={handleRadiusChange}
+				on:centerChange={handleCenterChange}
+			/>
+		</Surface>
 	</div>
 </div>
 
@@ -142,19 +148,39 @@
 		gap: 20px;
 		height: 80vh;
 		box-sizing: border-box;
-		/* 背景色は基本背景 */
 		background-color: var(--bg);
 		color: var(--text);
+	}
+
+	.sidebar-content {
+		width: 500px;
+		flex-shrink: 0;
 	}
 
 	.main-content {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		/* マップ側のスタイルは ShelterMap に任せているため、ここでは配置のみ */
+		min-width: 0;
 	}
 
-	/* モーダル内のスタイル */
+	@media (max-width: 768px) {
+		.dashboard-container {
+			flex-direction: column;
+			height: auto;
+		}
+
+		.sidebar-content {
+			width: 100%;
+			margin-bottom: 20px;
+		}
+
+		.main-content {
+			height: 50vh;
+			min-height: 400px;
+		}
+	}
+
 	.detail-content {
 		color: var(--text);
 	}

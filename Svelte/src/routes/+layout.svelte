@@ -1,6 +1,6 @@
 <script lang="ts">
 	import favicon from '$lib/assets/CoCoIRU_icon.png';
-  import '$lib/theme.css';
+	import '$lib/theme.css';
 </script>
 
 <svelte:head>
@@ -8,13 +8,14 @@
 </svelte:head>
 
 <div class="page-wrapper">
-  <slot />
+	<slot />
 </div>
 
 <style>
-  .page-wrapper {
-    background-color: var(--bg);
-    color: var(--text);
-    box-sizing: border-box;
-  }
+	.page-wrapper {
+		min-height: 100vh;
+		font-size: 1.0em;
+		background-color: var(--bg);
+		color: var(--text);
+	}
 </style>
