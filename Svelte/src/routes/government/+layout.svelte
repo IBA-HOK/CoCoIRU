@@ -23,15 +23,12 @@
         </nav>
     </header>
 
-    <main>
-        <slot />
-    </main>
+    <slot />
 </div>
 
 <style>
     .government-app {
         min-height: 100vh; /* 画面いっぱいの高さ */
-        background-color: #f5f7fa;
         font-size: 1.2em;
     }
 
