@@ -82,11 +82,9 @@ class CommunitiesBase(BaseModel):
 
 class CommunitiesCreate(CommunitiesBase):
     name: str # 作成時は名前を必須とする
-    password: str # 作成時はパスワードを必須とする
 
 class Communities(CommunitiesBase):
     community_id: int
-    credential_id: int
     model_config = orm_config
     
 # --- 7. Shelter ---
@@ -117,45 +115,3 @@ class SupportRequestCreate(SupportRequestBase):
 class SupportRequest(SupportRequestBase):
     request_id: int
     model_config = orm_config
-
-
-# --- 9. Credential ---
-class CredentialBase(BaseModel):
-    created_at: Optional[str] = None
-
-class CredentialCreate(CredentialBase):
-    password: str  # 平文パスワード (ハッシュ化前)
-
-class Credential(CredentialBase):
-    credential_id: int
-    model_config = orm_config
-
-
-# --- 9. GovUser ---
-class GovUserBase(BaseModel):
-    username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    is_active: Optional[bool] = True
-    created_at: Optional[str] = None
-
-class GovUserCreate(GovUserBase):
-    password: str  # 平文パスワード (ハッシュ化前)
-
-class GovUser(GovUserBase):
-    gov_user_id: int
-    credential_id: int
-    model_config = orm_config
-
-# --- 10. Auth / Token ---
-class TokenRequest(BaseModel):
-    user_type: str  # "community" または "gov"
-    username: Optional[str] = None  # gov用
-    community_id: Optional[int] = None  # community用
-    password: str
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int
-    role: str  # "community" または "gov"
