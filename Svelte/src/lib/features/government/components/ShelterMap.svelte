@@ -16,6 +16,8 @@
   function handleRadiusPreview(e: CustomEvent) { dispatch('radiusChangePreview', e.detail); }
   function handleRadiusChange(e: CustomEvent) { dispatch('radiusChange', e.detail); }
   function handleCenterChange(e: CustomEvent) { dispatch('centerChange', e.detail); }
+
+  $: console.debug('[ShelterMap] markers length', markers?.length);
 </script>
 
 <div class="map-wrapper">

@@ -12,7 +12,8 @@
 	export let data: PageData;
 
 	// --- 設定 ---
-	const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+	// Use proxied relative path so Vite dev server forwards to backend (same-origin)
+	const API_BASE_URL = '/api/v1';
 
 	// --- 状態 ---
 	let searchKeyword = '';
@@ -20,7 +21,8 @@
 	let isSelectionMode = false;
 	let mapCenter: [number, number] = data.mapCenter;
 
-	let communities: any[] = [];
+	// Initialize communities from page load data (SSR pre-fetched)
+	let communities: any[] = data.communities || [];
 	let locationQuery = '';
 	let isSearchingLocation = false;
 	let showModal = false;
@@ -33,23 +35,31 @@
 		{ lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
 	];
 	// マーカー生成
-	$: mapMarkers = communities
-		.filter((c) => c.latitude != null && c.longitude != null)
-		.map((c) => ({
-			lat: c.latitude,
-			lng: c.longitude,
-			caption: c.name || '名前未設定',
-			detail: c
-		}))
-		.filter((m) => m.caption.includes(searchKeyword));
+	$: mapMarkers = (() => {
+		const filtered = communities
+			.filter((c) => c.latitude != null && c.longitude != null)
+			.map((c) => ({
+				lat: c.latitude,
+				lng: c.longitude,
+				caption: c.name || '名前未設定',
+				detail: c
+			}))
+			.filter((m) => m.caption.includes(searchKeyword));
+		console.log('[+page.svelte] mapMarkers updated:', filtered);
+		return filtered;
+	})();
 
 	// API通信処理など (変更なしのため省略)
 	async function fetchShelters(lat: number, lng: number, rangeKm: number) {
 		try {
 			const url = `${API_BASE_URL}/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${rangeKm}`;
-			const res = await fetch(url);
+			// Cookie (access_token) を送るため credentials: 'include' を指定
+			const res = await fetch(url, { credentials: 'include' });
 			if (!res.ok) throw new Error(`API Error: ${res.status}`);
-			communities = await res.json();
+			const data = await res.json();
+			console.log('[+page.svelte] API response data:', data);
+			communities = data;
+			console.log('[+page.svelte] communities state updated with', communities.length, 'items');
 		} catch (e) {
 			console.error('データ取得失敗:', e);
 		}
