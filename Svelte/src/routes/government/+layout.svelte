@@ -87,11 +87,4 @@
         height: 3px;
         background-color: #3498db;
     }
-    
-    /* 各ページのコンテンツエリア */
-    main {
-        padding: 20px;
-        max-width: 1300px;
-        margin: 0 auto;
-    }
 </style>
