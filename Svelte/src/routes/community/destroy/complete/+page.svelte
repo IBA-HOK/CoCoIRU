@@ -6,7 +6,7 @@
   onMount(() => {
     try { id = sessionStorage.getItem('lastDestroyedCommunity') || ''; } catch (e) {}
   });
-  function toTop() { goto('/community/create'); }
+  function toTop() { goto('/community'); }
 </script>
 
 <main class="page" style="padding:1rem; display:flex; justify-content:center">

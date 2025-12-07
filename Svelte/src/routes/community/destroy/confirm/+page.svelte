@@ -36,10 +36,10 @@
 </main>
 
 <style>
-  .card { background:#fff; padding:1.25rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06) }
+  .card { background: var(--card); color: var(--text); padding:1.25rem; border-radius:8px; box-shadow:0 2px 8px var(--shadow) }
   label { display:block; margin-bottom:0.75rem }
-  input { width:100%; padding:0.5rem; border:1px solid #ddd; border-radius:4px }
+  input { width:100%; padding:0.5rem; border:1px solid var(--outline-sub); border-radius:4px; background: transparent; color: inherit }
   .actions { display:flex; gap:0.75rem; margin-top:1rem }
-  .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer }
-  .btn.danger { background:#e74c3c; color:#fff }
+  .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid var(--outline); background: var(--card-high); color: var(--text); cursor:pointer }
+  .btn.danger { background: var(--error); color: var(--on-error) }
 </style>

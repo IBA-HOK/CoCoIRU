@@ -10,7 +10,16 @@
     try {
       const pref = sessionStorage.getItem('selectedCommunityId');
       if (pref) communityId = pref;
-      // try to prefill existing edit values if present
+      // まず communityEdits マップから現在の値を取得してプリセット
+      try {
+        const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
+        const edits = JSON.parse(editsRaw || '{}');
+        const e = edits[communityId] || null;
+        if (e?.name) name = e.name;
+        if (typeof e?.count === 'number') count = e.count;
+      } catch (e) {}
+
+      // 既に編集下書きがあればそれで上書き（直前の入力を復元）
       const saved = sessionStorage.getItem('editDraft');
       if (saved) {
         const d = JSON.parse(saved);
@@ -28,7 +37,7 @@
     try { sessionStorage.setItem('editDraft', JSON.stringify(draft)); } catch (e) {}
     goto('/community/edit/confirm');
   }
-  function back() { goto('/community'); }
+  function back() { goto('/community/account'); }
 </script>
 
 <main class="page">
