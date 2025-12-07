@@ -44,6 +44,13 @@ pip install -r requirements.txt
 ```
 もし何らかのエラーが出る場合はrequirements.txtの文字コードをSjisに変更してください。
 もしインストールでOSエラーが出る場合は管理者権限でターミナルを開いてください。
+```bash
+※venvを使用する場合
+python -m venv .venv
+.\.venv\Scripts\Activate
+pip install -r .\requirements.txt
+npm run api
+```
 
 ### -- 3. フォルダ構成
 主なファイルの構成を以下に示す
@@ -54,6 +61,7 @@ Svelte
       ├── lib/                          // アプリケーション内部ライブラリ ($libで参照可能)
       │   ├── components/               // アプリケーション全体で共有する汎用UIコンポーネント
       │   │   └── Button.svelte
+      │   ├── assets/                   // アプリケーション全体で共有するアイコンなど
       │   │   
       │   ├── features/                 // 機能単位（ドメインごと）のリソース群
       │   │   ├── request/              // 「申請機能」関連のモジュール

@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from db.session import get_db
 from db import crud, schemas
+from app.core.security import require_token
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_token)])
 
 @router.post("/", response_model=schemas.Items)
 def api_create_item(

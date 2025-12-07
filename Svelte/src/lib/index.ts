@@ -6,3 +6,5 @@
 // 2. ファイルの場所が変わっても、ここでパスを修正するだけで済む
 
 export { default as Button } from './components/Button.svelte';
+export { default as Surface } from './components/Surface.svelte';
+export { default as Title } from './components/Title.svelte';
