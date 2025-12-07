@@ -64,6 +64,15 @@ async def require_token(
         print(f"DEBUG: Same-port request from {client_host}:{client_port}, bypassing authentication")
         return {"sub": "localhost", "role": "admin", "token": "localhost_bypass"}
     
+    # プリフライトOPTIONSは認証ヘッダーを持たないためスキップ
+    if request.method == "OPTIONS":
+        print("DEBUG: OPTIONS preflight request - skipping auth check")
+        return {"sub": "preflight", "role": "preflight", "token": ""}
+
+    # 生のAuthorizationヘッダーとメソッドを表示（デバッグ用）
+    raw_auth = request.headers.get('authorization')
+    print(f"DEBUG: method={request.method}, raw_authorization={raw_auth}")
+
     # Cookie優先でトークン取得
     access_token = request.cookies.get("access_token")
     token = access_token or authorization
