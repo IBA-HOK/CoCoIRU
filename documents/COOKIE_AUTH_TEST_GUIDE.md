@@ -21,7 +21,7 @@ python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ### 2. Svelte開発サーバーの起動
 
 ```bash
-cd /home/hokuto/ドキュメント/github/CoCoIRU/Svelte
+cd ./Svelte
 npm run dev
 ```
 
@@ -32,12 +32,20 @@ npm run dev
 ### 3. テストデータの作成（初回のみ）
 
 ```bash
-cd /home/hokuto/ドキュメント/github/CoCoIRU
 python3 script_for_test/create_test_data.py
 ```
 
 **確認:**
 - "✓ テストデータ作成完了!" が表示されればOK
+
+**注意（初回セットアップ）**:
+- もしログインで `Invalid credentials` や `Missing bearer token` が出る場合は、初期 `gov_admin` アカウントが存在しない可能性があります。リポジトリに付属の DB 初期化スクリプトで作成できます:
+
+```bash
+python3 db/create_database.py
+```
+
+このコマンドは `database.db` のテーブルを作成し、デフォルトの `gov_admin` (パスワード: `gov_admin_pass`) を作成します。CI や本番では環境変数 `GOV_ADMIN_PASSWORD` を使ってパスワードを設定してください。
 
 ---
 
@@ -88,6 +96,9 @@ http://localhost:5173/login_test
 - ✅ `Path`: /
 - ✅ `Expires`: 3時間後（10800秒）
 
+**補足（よくある失敗）**:
+- ログインで `Set-Cookie` ヘッダが返っていても、ブラウザ側が Cookie を保存または送信しないことがあります。Network タブでログインレスポンスに `Set-Cookie` が含まれているか、属性（Domain/Path/SameSite/Secure）を確認してください。
+
 ### ステップ3: Cookie自動送信の確認
 
 1. **「🔄 ユーザー情報を再取得」ボタン**をクリック
@@ -96,6 +107,18 @@ http://localhost:5173/login_test
 - ✅ 追加の認証情報入力なしでユーザー情報が取得される
 - DevToolsの**Networkタブ**で `/api/v1/login/me` リクエストを確認
 - **Request Headers**に `Cookie: access_token=eyJhbGci...` が含まれる
+
+**重要:** フロントエンド側の `fetch()` を使う場合、クロスオリジンのやり取りではブラウザはデフォルトで Cookie を送信しません。Cookie を自動送信するには `credentials: 'include'` を必ず付与してください:
+
+```javascript
+// 例: ユーザー情報取得
+fetch('http://localhost:8000/api/v1/login/me', {
+   method: 'GET',
+   credentials: 'include'
+});
+```
+
+`credentials: 'include'` がないとサーバー側で `Missing bearer token`（401）が返されます。
 
 ### ステップ4: ロールベースアクセス制御の確認
 
@@ -218,6 +241,15 @@ http://localhost:5173/login_test
 3. **ドメインの不一致**
    - APIとフロントエンドのドメインが異なる場合、`SameSite=None; Secure` が必要
 
+**さらに詳しいチェックリスト（Cookieが送信されない場合）**
+1. ログインのレスポンスに `Set-Cookie` があるか（Network → Response Headers）
+2. `Set-Cookie` の `Domain` が期待するホストを指しているか（`localhost` と `127.0.0.1` は別扱い）
+3. クライアント側の `fetch` に `credentials: 'include'` があるか（必須）
+4. サーバーの CORS 設定で `allow_credentials=True` が有効か（`app/main.py` 参照）
+5. ブラウザの DevTools → Application (Storage) で Cookie が保存されているか
+
+**注意:** `SameSite=None` を使用する場合、ブラウザは `Secure=True` が付いていない Cookie を拒否するため HTTPS が必須になります。開発環境では `SameSite=Lax` と `secure=False` のまま、`credentials: 'include'` とホスト一致で運用するのが現実的です。
+
 ### 401 Unauthorized エラー（ログアウト前）
 
 **症状:** ログイン後すぐに401エラーが発生
@@ -230,6 +262,33 @@ http://localhost:5173/login_test
 2. **Cookie取得ロジックの確認**
    - `app/core/security.py` の `require_token` 関数を確認
    - `request.cookies.get("access_token")` が正しく動作しているか確認
+
+**ホスト不一致 (localhost vs 127.0.0.1)**
+- 開発用に API を `127.0.0.1:8000` で立てつつフロントを `localhost:5173` で動かすと、Cookie の発行ホストとアクセス元が一致しないため Cookie が送られないことがあります。推奨対策は次のどちらかです:
+
+- フロントから API を同じホスト/ポートに合わせる（例: フロントからも `http://127.0.0.1:8000` を使う）
+- Vite 開発サーバーの proxy を使って同一オリジン化する（推奨）
+
+Vite proxy の例（`Svelte/vite.config.ts` または `vite.config.js` に追加）:
+
+```ts
+// vite.config.ts (一例)
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+   server: {
+      proxy: {
+         '/api': {
+            target: 'http://127.0.0.1:8000',
+            changeOrigin: true,
+            secure: false,
+         }
+      }
+   }
+});
+```
+
+プロキシを使うと、フロントは `http://localhost:5173/api/...` にリクエストし、ブラウザから見て同一オリジンとなるため Cookie の送受信問題が解消します。
 
 ### ログアウト後もアクセスできてしまう
 
