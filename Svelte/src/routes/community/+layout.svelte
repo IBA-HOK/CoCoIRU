@@ -12,7 +12,9 @@
   </div>
 </header>
 
-<slot />
+<div class="page-wrapper force-black">
+  <slot />
+</div>
 
 <style>
   .community-header {
@@ -38,5 +40,24 @@
     min-height: 100vh;
     padding: 2rem 1rem;
     box-sizing: border-box;
+  }
+  /* 変更: 影響範囲を限定して、テキスト要素のみ黒にする。
+     ボタンや入力などのコンポーネント固有のスタイルは上書きしない。
+  */
+  :global(.force-black) h1,
+  :global(.force-black) h2,
+  :global(.force-black) h3,
+  :global(.force-black) h4,
+  :global(.force-black) h5,
+  :global(.force-black) h6,
+  :global(.force-black) p,
+  :global(.force-black) span,
+  :global(.force-black) li,
+  :global(.force-black) label,
+  :global(.force-black) strong,
+  :global(.force-black) em,
+  :global(.force-black) td,
+  :global(.force-black) th {
+    color: #000 !important;
   }
 </style>
