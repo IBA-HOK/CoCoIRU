@@ -18,6 +18,7 @@
   .surface {
     background-color: var(--card);
     border-radius: 16px;
+    margin: 20px;
     padding: 24px;
     box-shadow: 
       0 2px 4px color-mix(in srgb, var(--shadow), transparent 90%), 

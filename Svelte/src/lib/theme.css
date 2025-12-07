@@ -125,7 +125,7 @@
 
   /* === ベースカラー === */
   /* 画面全体の背景 */
-  --bg: var(--md-sys-color-background);
+  --bg: var(--md-sys-color-surface-container-lowest);
   /* 基本の文字色 */
   --text: var(--md-sys-color-on-background);
   /* サブの文字色 */
@@ -136,6 +136,7 @@
   --card: var(--md-sys-color-surface-container);
   /* カードにおいたカードの背景 */
   --card-high: var(--md-sys-color-surface-container-high);
+  --card-low: var(--md-sys-color-surface-container-low);
   /* 枠線の色 */
   --outline: var(--md-sys-color-outline);
   /* サブの枠線の色 */

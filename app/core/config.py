@@ -10,6 +10,7 @@ class Settings:
     access_token_expire_seconds: int
     auth_username: str
     auth_password: str
+    dev_mode: bool  # 開発モード: True の場合は認証をバイパス
 
 
 @lru_cache
@@ -20,6 +21,7 @@ def get_settings() -> Settings:
         access_token_expire_seconds=int(os.getenv("ACCESS_TOKEN_EXPIRE_SECONDS", "10800")),
         auth_username=os.getenv("ADMIN_USERNAME", "admin"),
         auth_password=os.getenv("ADMIN_PASSWORD", "admin"),
+        dev_mode=os.getenv("DEV_MODE", "false").lower() == "true",
     )
 
 
