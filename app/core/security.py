@@ -48,6 +48,13 @@ async def require_token(
     """FastAPI dependency that enforces OAuth2 bearer authentication.
     Checks cookie first, then Authorization header. Also validates against blacklist.
     """
+    settings = get_settings()
+    
+    # 開発モードの場合は認証をバイパス
+    if settings.dev_mode:
+        print("DEBUG: DEV_MODE is enabled, bypassing authentication")
+        return {"sub": "dev_user", "role": "admin", "token": "dev_bypass"}
+    
     # 同一ポート(8000)からのリクエストは素通し
     client_host = request.client.host if request.client else None
     client_port = request.client.port if request.client else None
