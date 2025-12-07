@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { Button, Surface, Title } from '$lib';
     
     // API (GovernmentRequestItem) のレスポンスに合わせた型定義
     interface RequestItem {
@@ -189,9 +190,8 @@
 </script>
 
 <div class="request-list-container">
-    <h1>📋 支援要請一覧</h1>
-    <p class="subtitle">未対応の要請や対応状況を、切り替えて確認できます。</p>
-
+    <Title titleText="支援要請一覧" subtitleText="未対応の要請や対応状況を、切り替えて確認できます。"/>
+    <Surface>
     <div class="view-switch-container">
         <button 
             class="switch-btn" 
@@ -209,7 +209,6 @@
             📦 品目別集計
         </button>
     </div>
-
     <div class="list-container">
         {#if currentView === 'community'}
             <h2>🏢 コミュニティ別 (全 {communitySummaries.length} 件)</h2>
@@ -286,63 +285,85 @@
             </table>
         {/if}
     </div>
+    </Surface>
 </div>
 
 <style>
     /* ベーススタイル */
-    h1 { 
-        color: #00796b; 
-        border-bottom: 2px solid #00796b; 
-        padding-bottom: 10px;
-        margin-bottom: 10px; 
-    }
-    .subtitle { 
-        font-size: 1.1em; 
-        color: #555; 
-        margin-bottom: 20px; 
+    h2 {
+        color: var(--primary);
+        font-size: 1.25rem;
+        margin: 0 0 16px 0;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--outline-sub);
     }
 
     /* 切り替えボタン */
-    .view-switch-container { 
-        margin-bottom: 20px; 
+    .view-switch-container {
+        margin-bottom: 24px;
+        display: flex;
+        gap: 12px;
     }
+
     .switch-btn {
         padding: 10px 20px; 
         margin-right: 10px; 
-        border: 1px solid #ccc;
-        background-color: #f9f9f9; 
+        border: 1px solid var(--outline);
+        background-color: var(--bg); 
         cursor: pointer; 
         border-radius: 4px; 
         font-size: 1em;
-        transition: background-color 0.2s;
+        color: var(--on-primary-container);
     }
+
     .switch-btn:hover { 
-        background-color: #e0f2f1; 
+        background-color: var(--primary-container);
+        border-color: var(--primary-container);
+        color: var(--on-primary-container);
     }
+
     .switch-btn.active { 
-        background-color: #00796b; 
-        color: white; 
-        border-color: #00796b; 
-        font-weight: bold; 
+        background-color: var(--primary);
+        color: var(--on-primary);
+        border-color: var(--primary);
+        font-weight: bold;
+        box-shadow: 0 2px 4px var(--shadow);
     }
 
     /* テーブル */
     table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        margin-top: 10px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 10px;
+        border: 1px solid var(--outline-sub);
+        border-radius: 8px;
+        overflow: hidden;
     }
+
     th, td { 
-        border: 1px solid #ddd; 
         padding: 12px 15px; 
         text-align: left; 
+        border-bottom: 1px solid var(--outline-sub);
     }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
     th { 
-        background-color: #e0f7fa; 
-        color: #004d40; 
-        font-weight: 600; 
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+        font-weight: bold;
+        font-size: 0.95em;
+        white-space: nowrap;
     }
+
+    td {
+        color: var(--text);
+        background-color: var(--card);
+    }
+
     .status-header {
         width: 180px; 
     }
@@ -352,14 +373,17 @@
         cursor: pointer; 
         transition: background-color 0.1s; 
     }
+
     .clickable-row:hover { 
-        background-color: #f1f8e9; 
+        background-color: var(--card-high);
     }
+
     .link-text { 
-        color: #0288d1; 
+        color: var(--primary);
         font-weight: bold; 
         text-decoration: none; 
     }
+
     .link-text:hover { 
         text-decoration: underline; 
     }
@@ -371,11 +395,14 @@
         background-color: #ffcc80; 
         color: #e65100; 
         font-weight: bold;
+        
     }
+
     .item-badge { 
         background-color: #ff9800; 
         color: white; 
     }
+
     .ok-badge {
         padding: 4px 10px; 
         border-radius: 12px; 
@@ -383,14 +410,17 @@
         color: #2e7d32; 
         font-size: 0.9em;
     }
+
     .sortable {
         cursor: pointer;
         user-select: none;
         transition: background-color 0.2s;
     }
+
     .sortable:hover {
         background-color: #b2dfdb;
     }
+    
     .sort-icon {
         font-size: 0.8em;
         margin-left: 5px;
