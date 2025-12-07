@@ -15,55 +15,46 @@
   let showModal = false;
   let selectedCommunity: any = null;
 
-	// テスト用のダミーデータ ---
-  const dummyMarkers = [
-    { lat: 35.6895, lng: 139.6917, caption: '📍 新宿 (テストデータ)' },
-    { lat: 35.6585, lng: 139.7454, caption: '🗼 東京タワー (テストデータ)' },
-    { lat: 35.7100, lng: 139.8107, caption: '🗼 スカイツリー (テストデータ)' },
-    { lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
-  ];
+	// API通信処理など (変更なしのため省略)
+	async function fetchShelters(lat: number, lng: number, rangeKm: number) {
+		try {
+			const url = `${API_BASE_URL}/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${rangeKm}`;
+			const res = await fetch(url, {
+				credentials: 'include'
+			});
+			if (!res.ok) throw new Error(`API Error: ${res.status}`);
+			communities = await res.json();
+		} catch (e) {
+			console.error('データ取得失敗:', e);
+		}
+	}
 
-	// APIデータ (communities) を MapComponent 用の markers 形式に変換
-  $: mapMarkers = [
-    ...dummyMarkers, // 先頭にダミーを追加
-    ...data.communities // onMountでAPIから取得したデータ
-    .filter(c => c.latitude != null && c.longitude != null) // 座標がないデータは除外
-    .map(c => ({
-      lat: c.latitude!,
-      lng: c.longitude!,
-      caption: c.name || '名前未設定',
-      detail: c // 詳細モーダル用に生のデータを丸ごと渡す
-    }))
-    .filter(m => m.caption.includes(searchKeyword))
-  ];
-	
-	// --- イベントハンドラ ---
-  // マーカークリック時
-  function handleMarkerClick(event: CustomEvent) {
-    selectedCommunity = event.detail;
-    showModal = true;
-  }
-
-  // 地図で半径変更中（プレビュー）
-  function handleRadiusPreview(event: CustomEvent) {
-    // 入力欄の数字だけ更新（APIはまだ叩かない）
-    searchRadiusKm = parseFloat(event.detail.toFixed(2));
-    isSelectionMode = false;
-  }
-
-  // 地図で半径変更確定
-  function handleRadiusChange(event: CustomEvent) {
-    searchRadiusKm = parseFloat(event.detail.toFixed(2));
-    isSelectionMode = false; // モード終了
-    // ★ここでAPIを再取得する処理を入れる (invalidateAllなど)
-    // goto(`?lat=${mapCenter[1]}&lng=${mapCenter[0]}&range=${searchRadiusKm}`) など
-  }
-
-  // 地図の中心変更
-  function handleCenterChange(event: CustomEvent) {
-    const [lng, lat] = event.detail;
-    mapCenter = [lng, lat];
-  }
+	// 検索処理
+	async function searchLocation() {
+		if (!locationQuery) return;
+		isSearchingLocation = true;
+		try {
+			const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationQuery)}&limit=1`;
+			const res = await fetch(url, {
+				credentials: 'include'
+			});
+			const json = await res.json();
+			if (json && json.length > 0) {
+				const result = json[0];
+				const lat = parseFloat(result.lat);
+				const lon = parseFloat(result.lon);
+				mapCenter = [lon, lat];
+				fetchShelters(lat, lon, searchRadiusKm);
+			} else {
+				alert('場所が見つかりませんでした');
+			}
+		} catch (e) {
+			console.error(e);
+			alert('検索エラー');
+		} finally {
+			isSearchingLocation = false;
+		}
+	}
 
 </script>
 
