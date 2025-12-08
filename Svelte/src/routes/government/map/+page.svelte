@@ -109,39 +109,43 @@
 	}
 </script>
 
-<Title 
+<Title
 	iconSrc={mapIcon}
 	iconAlt="地図アイコン"
-    titleText="避難所マップ" 
-	subtitleText="避難所の位置情報を地図上で確認・検索できます" 
+	titleText="避難所マップ"
+	subtitleText="避難所の位置情報を地図上で確認・検索できます"
 />
 
 <div class="dashboard-container">
 	<div class="sidebar-content">
-		<Surface>
-			<ShelterMapSidebar
-				bind:locationQuery
-				bind:isSearchingLocation
-				bind:searchRadiusKm
-				bind:isSelectionMode
-				bind:searchKeyword
-				on:search={searchLocation}
-			/>
-		</Surface>
+		<div class="surface-wrapper">
+			<Surface>
+				<ShelterMapSidebar
+					bind:locationQuery
+					bind:isSearchingLocation
+					bind:searchRadiusKm
+					bind:isSelectionMode
+					bind:searchKeyword
+					on:search={searchLocation}
+				/>
+			</Surface>
+		</div>
 	</div>
 	<div class="main-content">
-		<Surface>
-			<ShelterMap
-				markers={mapMarkers}
-				{mapCenter}
-				{searchRadiusKm}
-				bind:isSelectionMode
-				on:markerClick={handleMarkerClick}
-				on:radiusChangePreview={handleRadiusPreview}
-				on:radiusChange={handleRadiusChange}
-				on:centerChange={handleCenterChange}
-			/>
-		</Surface>
+		<div class="surface-wrapper">
+			<Surface>
+				<ShelterMap
+					markers={mapMarkers}
+					{mapCenter}
+					{searchRadiusKm}
+					bind:isSelectionMode
+					on:markerClick={handleMarkerClick}
+					on:radiusChangePreview={handleRadiusPreview}
+					on:radiusChange={handleRadiusChange}
+					on:centerChange={handleCenterChange}
+				/>
+			</Surface>
+		</div>
 	</div>
 </div>
 
@@ -161,15 +165,14 @@
 	/* === コンテナレイアウト === */
 	.dashboard-container {
 		display: flex;
-		gap: 20px;
-		height: 80vh;
 		box-sizing: border-box;
 		background-color: var(--bg);
 		color: var(--text);
+		flex: 1;
 	}
 
 	.sidebar-content {
-		width: 500px;
+		width: 400px;
 		flex-shrink: 0;
 	}
 
@@ -178,6 +181,12 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
+	}
+
+	.surface-wrapper {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
 	}
 
 	@media (max-width: 768px) {
