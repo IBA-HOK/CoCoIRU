@@ -8,6 +8,7 @@
 	// ★作成したサイドバーコンポーネント
 	import ShelterMapSidebar from '$lib/features/government/components/ShelterMapSidebar.svelte';
 	import Surface from '$lib/components/Surface.svelte';
+	import mapIcon from '$lib/assets/map.png';
 
 	export let data: PageData;
 
@@ -108,7 +109,12 @@
 	}
 </script>
 
-<Title titleText="避難所マップ" />
+<Title 
+	iconSrc={mapIcon}
+	iconAlt="地図アイコン"
+    titleText="避難所マップ" 
+	subtitleText="避難所の位置情報を地図上で確認・検索できます" 
+/>
 
 <div class="dashboard-container">
 	<div class="sidebar-content">

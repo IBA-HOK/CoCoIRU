@@ -1,6 +1,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { Button, Surface, Title } from '$lib';
+    import supportIcon from '$lib/assets/support.png';
+    import communityIcon from '$lib/assets/community.png';
+    import itemIcon from '$lib/assets/item.png';
     
     // API (GovernmentRequestItem) のレスポンスに合わせた型定義
     interface RequestItem {
@@ -190,7 +193,12 @@
 </script>
 
 <div class="request-list-container">
-    <Title titleText="支援要請一覧" subtitleText="未対応の要請や対応状況を、切り替えて確認できます。"/>
+    <Title 
+        iconSrc={supportIcon}
+        iconAlt="支援要請アイコン"
+        titleText="支援要請一覧" 
+        subtitleText="未対応の要請や対応状況を、切り替えて確認できます。"
+    />
     <Surface>
     <div class="view-switch-container">
         <button 
@@ -198,7 +206,8 @@
             class:active={currentView === 'community'} 
             on:click={() => { currentView = 'community'; sortKey = 'pending'; sortDesc = true; }}
         >
-            🏢 コミュニティ別リスト
+            <img src={communityIcon} alt="コミュニティ" class="btn-icon" />
+            コミュニティ別リスト
         </button>
         
         <button 
@@ -206,12 +215,16 @@
             class:active={currentView === 'item'} 
             on:click={() => { currentView = 'item'; sortKey = 'pending'; sortDesc = true; }}
         >
-            📦 品目別集計
+            <img src={itemIcon} alt="品目" class="btn-icon" />
+            品目別集計
         </button>
     </div>
     <div class="list-container">
         {#if currentView === 'community'}
-            <h2>🏢 コミュニティ別 (全 {communitySummaries.length} 件)</h2>
+            <div class="section-header">
+                <img src={communityIcon} alt="コミュニティ" class="section-icon" />
+                <h2>コミュニティ別 (全 {communitySummaries.length} 件)</h2>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -244,7 +257,10 @@
             </table>
 
         {:else if currentView === 'item'}
-            <h2>📦 品目別 (全 {itemSummaries.length} 品目)</h2>
+            <div class="section-header">
+                <img src={itemIcon} alt="品目" class="section-icon" />
+                <h2>品目別 (全 {itemSummaries.length} 品目)</h2>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -295,7 +311,6 @@
         font-size: 1.25rem;
         margin: 0 0 16px 0;
         padding-bottom: 8px;
-        border-bottom: 2px solid var(--outline-sub);
     }
 
     /* 切り替えボタン */
@@ -306,6 +321,9 @@
     }
 
     .switch-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         padding: 10px 20px; 
         margin-right: 10px; 
         border: 1px solid var(--outline);
@@ -314,6 +332,11 @@
         border-radius: 4px; 
         font-size: 1em;
         color: var(--on-primary-container);
+    }
+    .btn-icon {
+        width: 1.2em;
+        height: 1.2em;
+        flex-shrink: 0;
     }
 
     .switch-btn:hover { 
@@ -425,5 +448,24 @@
         font-size: 0.8em;
         margin-left: 5px;
         color: #00796b;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        border-bottom: 2px solid var(--outline-sub);
+    }
+
+    .section-icon {
+        width: 1.5em;
+        height: 1.5em;
+        flex-shrink: 0;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        padding-bottom: 8px;
     }
 </style>
