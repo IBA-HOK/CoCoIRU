@@ -104,7 +104,9 @@
     <a href="/government/requestlist" class="back-link">← 一覧に戻る</a>
 
     <header>
-        <h1>{community.name} の要請詳細</h1>
+        <h1>要請詳細</h1>
+        <!-- <h1>{community.name} の要請詳細</h1> -->
+        <!-- <pre>{JSON.stringify(community, null, 2)}</pre> -->
         <div class="info-bar">
             <span><strong>避難人数:</strong> {community.member_count} 人</span>
             <span><strong>要請件数:</strong> {requests.length} 件</span>

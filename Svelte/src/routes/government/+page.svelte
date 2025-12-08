@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { Title } from '$lib';
 	import FeatureCard from '$lib/features/government/components/FeatureCard.svelte';
+	import alertIcon from '$lib/assets/alert.png';
 </script>
 
 <Title
-	titleText="🚨 災害支援システム 行政ダッシュボード"
+    iconSrc={alertIcon}
+	iconAlt="警告アイコン"
+	titleText="災害支援システム 行政ダッシュボード"
 	subtitleText="避難所からの支援要請への迅速な対応を支援します。"
 />
 <div class="card-grid">

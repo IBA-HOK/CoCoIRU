@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { Button, Surface, Title } from '$lib';
+    import supportIcon from '$lib/assets/support.png';
     
     // API (GovernmentRequestItem) のレスポンスに合わせた型定義
     interface RequestItem {
@@ -190,7 +191,12 @@
 </script>
 
 <div class="request-list-container">
-    <Title titleText="支援要請一覧" subtitleText="未対応の要請や対応状況を、切り替えて確認できます。"/>
+    <Title 
+        iconSrc={supportIcon}
+        iconAlt="支援要請アイコン"
+        titleText="支援要請一覧" 
+        subtitleText="未対応の要請や対応状況を、切り替えて確認できます。"
+    />
     <Surface>
     <div class="view-switch-container">
         <button 
