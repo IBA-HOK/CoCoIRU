@@ -98,12 +98,6 @@
 		overflow-y: auto;
 	}
 
-	:global(.sidebar-surface) {
-		display: flex;
-		flex-direction: column;
-		height: calc(100vh - 48px);
-	}
-
 	.sidebar-header {
 		display: flex;
 		justify-content: space-between;

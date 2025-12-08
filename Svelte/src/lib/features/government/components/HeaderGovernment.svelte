@@ -31,16 +31,19 @@
 
 <style>
   .main-header {
-    /* 前回のCSS変数を適用 */
-    background-color: var(--primary);
+    background: linear-gradient(to right, var(--primary), var(--accent));
     color: var(--on-primary);
-    
     padding: 20px 50px;
     display: flex;
     align-items: center;
   }
 
   /* ロゴのリンク */
+  .logo-img img {
+    height: 40px;
+    width: auto;
+  }
+
   .logo-link {
     text-decoration: none;
     color: var(--on-primary);
