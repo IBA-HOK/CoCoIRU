@@ -78,7 +78,8 @@
 <div class="item-detail-container">
     <a href="/government/requestlist" class="back-link">← 一覧に戻る</a>
 
-    <h1>📦 品目: {itemName} の要請状況</h1>
+    <h1>{itemName} の要請状況</h1>
+    <!-- 📦  -->
     <p class="subtitle">この品目を要請しているコミュニティの一覧です。</p>
 
     <div class="summary-card">
