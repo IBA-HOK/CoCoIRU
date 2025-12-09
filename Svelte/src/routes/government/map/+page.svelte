@@ -59,7 +59,7 @@ import { onMount } from 'svelte';
       const url = `${API_BASE_URL}/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${rangeKm}`;
       console.log(`Fetching: ${url}`); // デバッグ用
 
-      const res = await fetch(url);
+      const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) {
         throw new Error(`API Error: ${res.status}`);
       }

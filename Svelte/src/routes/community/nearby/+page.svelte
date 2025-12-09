@@ -33,7 +33,7 @@
       const url = `http://127.0.0.1:8000/api/v1/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${FIXED_RADIUS_KM}`;
       
       // 認証が必要な場合は { credentials: 'include' } を追加
-      const res = await fetch(url);
+      const res = await fetch(url, { credentials: 'include' });
       
       if (!res.ok) throw new Error('データ取得失敗');
 

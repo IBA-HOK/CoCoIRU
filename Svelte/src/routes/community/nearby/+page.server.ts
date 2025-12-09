@@ -1,5 +1,5 @@
 // src/routes/+page.ts
-import type { PageLoadEvent } from './$types'; 
+import type { PageServerLoad } from './$types'; 
 
 // APIが返すコミュニティの型 (gnss.py に合わせる)
 interface Community {
@@ -15,15 +15,15 @@ interface Community {
 // FastAPIバックエンドのURL — 開発では Vite の proxy (/api) を使うため相対パスにする
 const API_BASE_URL = '/api/v1';
 
-export const load = async (event: PageLoadEvent) => {
-  const e: any = event;
-  const fetch = e.fetch as typeof globalThis.fetch;
-  const cookies = e.cookies as any;
+export const load: PageServerLoad = async ({ fetch, cookies, url }) => {
+  const latParam = url.searchParams.get('latitude');
+  const lngParam = url.searchParams.get('longitude');
+  const rangeParam = url.searchParams.get('range');
   // 1. 検索パラメータ (例として固定値を使用)
   const params = {
-    latitude: 35.681,  // 中心の緯度
-    longitude: 139.767, // 中心の経度
-    range: 10.0         // 検索範囲 (km)
+    latitude: latParam ? parseFloat(latParam) : 35.681, 
+    longitude: lngParam ? parseFloat(lngParam) : 139.767,
+    range: rangeParam ? parseFloat(rangeParam) : 10.0
   };
 
   try {
@@ -36,13 +36,10 @@ export const load = async (event: PageLoadEvent) => {
     const fetchOptions: RequestInit = {};
     // `request` はサーバー側のロードから利用できるヘッダ情報（存在しない場合もある）
 
-    if (typeof window === 'undefined') {
-      // SSR: SvelteKit の cookies API から access_token を取得して転送
-      const accessToken = cookies.get('access_token');
-      if (accessToken) fetchOptions.headers = { cookie: `access_token=${accessToken}` };
-    } else {
-      // クライアント: ブラウザに Cookie を送らせる
-      fetchOptions.credentials = 'include';
+    const accessToken = cookies.get('access_token');
+    
+    if (accessToken) {
+      fetchOptions.headers = { cookie: `access_token=${accessToken}` };
     }
 
     const res = await fetch(url, fetchOptions);
@@ -60,7 +57,7 @@ export const load = async (event: PageLoadEvent) => {
     console.error('Failed to fetch nearby communities:', error);
     return {
       communities: [],
-      mapCenter: [139.767, 35.681] as [number, number]
+      mapCenter: [params.longitude, params.latitude] as [number, number]
     };
   }
 };
