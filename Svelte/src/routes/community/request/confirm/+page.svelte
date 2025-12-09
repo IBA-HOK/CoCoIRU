@@ -6,9 +6,13 @@
   import type { RequestItem } from '$lib/features/request/requestItems'; // ★追加：型
 	import RequestNoteInput from '$lib/features/request/components/RequestNoteInput.svelte';
 	import Surface from '$lib/components/Surface.svelte';
+  import { communityId } from '$lib/stores/auth';
 
   // 特記事項
   let notes = '';
+
+  // 現在のコミュニティID（数値、未確定なら null）
+  let currentCommunityId: number | null = null;
 
   // ★追加：型を付ける
   let selectedItems: RequestItem[] = [];
@@ -19,10 +23,14 @@
   );
 
   // ★追加：API URL
-  const API_BASE = 'http://localhost:8000/api/v1';
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
-  // ★追加：community_id（ログインしている住民IDなどに置き換え可）
-  let communityId = 1;
+  // ★ community_id を store から取得（数値でない場合は null として扱う）
+  $: currentCommunityId = null;
+  $: if (typeof $communityId !== 'undefined' && $communityId !== null) {
+    const s = String($communityId);
+    currentCommunityId = /^\d+$/.test(s) ? Number(s) : null;
+  }
 
   // ---------------------------------------------------------
   // ★ 1つの物資を保存する処理（RequestContent → SupportRequest）
@@ -35,11 +43,12 @@
       other_note: notes
     };
 
-    const rcRes = await fetch(`${API_BASE}/request_content/`, {
+    const rcRes = await fetch(`${API_BASE}/api/v1/request_content/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(rcPayload)
     });
 
@@ -52,17 +61,21 @@
     const request_content_id = rcData.request_content_id;
 
     // (2) SupportRequest を保存
+    if (!currentCommunityId) {
+      throw new Error('コミュニティIDが不正です。コミュニティにログインしてください。');
+    }
     const srPayload = {
-      community_id: communityId,
+      community_id: currentCommunityId,
       request_content_id,
       status: 'pending'
     };
 
-    const srRes = await fetch(`${API_BASE}/support_requests/`, {
+    const srRes = await fetch(`${API_BASE}/api/v1/support_requests/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(srPayload)
     });
 

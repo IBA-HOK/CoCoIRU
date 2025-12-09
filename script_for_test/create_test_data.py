@@ -77,7 +77,7 @@ def create_special_notes(token, notes_list):
             created_ids.append(special_notes_id)
             print_success(f"Special Note ID {special_notes_id} 作成")
         else:
-            print_error(f"Special Note作成失敗: {response.text}")
+            print_error(f"Special Note作成失敗: {response.status_code} - {response.text}")
     
     return created_ids
 
@@ -142,7 +142,7 @@ def create_items(token, items_list):
             created_ids.append(item_id)
             print_success(f"Item ID {item_id} ({item['item_name']}) 作成")
         else:
-            print_error(f"Item作成失敗: {response.text}")
+            print_error(f"Item作成失敗: {response.status_code} - {response.text}")
     
     return created_ids
 

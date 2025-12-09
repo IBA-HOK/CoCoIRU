@@ -2,7 +2,10 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
 
-  let draft: { communityId?: string; name?: string; count?: number } = {};
+  let draft: { communityId?: string; name?: string; count?: number; password?: string } = {};
+  let isSubmitting = false;
+  let error = '';
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
   onMount(() => {
     try {
@@ -12,17 +15,43 @@
   });
 
   function back() { goto('/community/edit'); }
-  function confirm() {
-    // persist the edit - here we store into sessionStorage for demo
+  async function confirm() {
+    // send update to backend
+    error = '';
+    if (!draft.communityId) { error = 'コミュニティIDが不明です'; return; }
+    isSubmitting = true;
     try {
-      const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
-      const edits = JSON.parse(editsRaw);
-      edits[draft.communityId || ''] = { name: draft.name, count: draft.count };
-      sessionStorage.setItem('communityEdits', JSON.stringify(edits));
-      sessionStorage.removeItem('editDraft');
-      sessionStorage.setItem('lastEditedCommunity', draft.communityId || '');
-    } catch (e) {}
-    goto('/community/edit/complete');
+      const body: any = { name: draft.name || '', password: draft.password || '', member_count: draft.count };
+      const res = await fetch(`${API_BASE}/api/v1/communities/${draft.communityId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.detail || `更新が失敗しました (status=${res.status})`);
+      }
+
+      // update local cache and clear draft
+      try {
+        const data = await res.json().catch(() => ({}));
+        const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
+        const edits = JSON.parse(editsRaw || '{}');
+        edits[draft.communityId || ''] = { name: data.name || draft.name, count: draft.count };
+        sessionStorage.setItem('communityEdits', JSON.stringify(edits));
+        sessionStorage.removeItem('editDraft');
+        sessionStorage.setItem('lastEditedCommunity', draft.communityId || '');
+      } catch (e) {}
+
+      goto('/community/edit/complete');
+    } catch (e) {
+      console.error(e);
+      error = e instanceof Error ? e.message : '更新エラー';
+    } finally {
+      isSubmitting = false;
+    }
   }
 </script>
 
@@ -33,10 +62,20 @@
     <p><strong>コミュニティID:</strong> {draft.communityId}</p>
     <p><strong>コミュニティ名:</strong> {draft.name}</p>
     <p><strong>人数:</strong> {draft.count}</p>
+    <p><strong>更新用パスワード:</strong> {draft.password ? '●'.repeat(Math.max(3, String(draft.password).length)) : '—'}</p>
+
+    {#if error}
+      <div class="result error">
+        <h3>❌ エラー</h3>
+        <p>{error}</p>
+      </div>
+    {/if}
 
     <div class="actions">
-      <button class="btn" on:click={back}>戻る</button>
-      <button class="btn primary" on:click={confirm}>変更を確定する</button>
+      <button class="btn" on:click={back} disabled={isSubmitting}>戻る</button>
+      <button class="btn primary" on:click={confirm} disabled={isSubmitting}>
+        {isSubmitting ? '更新中...' : '変更を確定する'}
+      </button>
     </div>
   </section>
   </div>

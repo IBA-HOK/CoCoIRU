@@ -27,4 +27,18 @@ function logout() {
   communityId.set(null);
 }
 
-export { communityId, isLoggedIn, login, logout };
+// Gov auth
+const govLoggedIn = writable<boolean>(false);
+const govUser = writable<any>(null);
+
+function govLogin(user: any) {
+  govLoggedIn.set(true);
+  govUser.set(user);
+}
+
+function govLogout() {
+  govLoggedIn.set(false);
+  govUser.set(null);
+}
+
+export { communityId, isLoggedIn, login, logout, govLoggedIn, govUser, govLogin, govLogout };
