@@ -12,7 +12,7 @@
     } catch (e) {}
   });
 
-  function back() { goto('/community/form'); }
+  function back() { goto('/community/community_Login/form'); }
   const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
   async function create() {
@@ -57,7 +57,7 @@
       // update auth store so other pages react immediately
       try { login(sessionStorage.getItem('selectedCommunityId') || ''); } catch (e) {}
 
-      goto('/community/account');
+      goto('/community/community_Login/account');
     } catch (e) {
       console.error(e);
       alert(e instanceof Error ? e.message : 'コミュニティ作成エラー');

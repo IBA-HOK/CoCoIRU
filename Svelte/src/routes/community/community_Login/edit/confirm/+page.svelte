@@ -14,7 +14,7 @@
     } catch (e) {}
   });
 
-  function back() { goto('/community/edit'); }
+  function back() { goto('/community/community_Login/edit'); }
   async function confirm() {
     // send update to backend
     error = '';
@@ -45,7 +45,7 @@
         sessionStorage.setItem('lastEditedCommunity', draft.communityId || '');
       } catch (e) {}
 
-      goto('/community/edit/complete');
+      goto('/community/community_Login/edit/complete');
     } catch (e) {
       console.error(e);
       error = e instanceof Error ? e.message : '更新エラー';

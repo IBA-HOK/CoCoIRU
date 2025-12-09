@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
-  function toCreate() { goto('/community/form'); }
-  function toLogin() { goto('/community/login'); }
+  function toCreate() { goto('/community/community_Login/form'); }
+  function toLogin() { goto('/community/community_Login/login'); }
 </script>
 
 <main class="center" style="padding:2rem; display:flex; justify-content:center; align-items:center; min-height:60vh">

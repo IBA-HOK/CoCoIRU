@@ -47,7 +47,7 @@
       try { sessionStorage.setItem('selectedCommunityId', id); } catch (e) {}
       try { authLogin(id); } catch (e) {}
 
-      goto('/community/account');
+      goto('/community/community_Login/account');
     } catch (e) {
       console.error(e);
       error = e instanceof Error ? e.message : 'ログインエラー';
