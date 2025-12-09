@@ -268,10 +268,6 @@ allow_origins=["http://localhost:5173"]
 </main>
 
 <style>
-  :global(body) {
-    background: #f4f7f9;
-  }
-
   .login-page {
     display: grid;
     gap: 2rem;

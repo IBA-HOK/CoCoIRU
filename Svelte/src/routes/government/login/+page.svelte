@@ -79,10 +79,6 @@
 </main>
 
 <style>
-  :global(body) {
-    background: #f4f7f9;
-  }
-
   .login-page {
     display: flex;
     justify-content: center;
