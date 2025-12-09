@@ -37,9 +37,9 @@
   function toConfirm() {
     const draft = { communityId, name, count, password };
     try { sessionStorage.setItem('editDraft', JSON.stringify(draft)); } catch (e) {}
-    goto('/community/edit/confirm');
+    goto('/community/community_Login/edit/confirm');
   }
-  function back() { goto('/community/account'); }
+  function back() { goto('/community/community_Login/account'); }
 </script>
 
 <main class="page">
