@@ -14,8 +14,11 @@
       const sel = sessionStorage.getItem('selectedCommunityId');
       if (sel) {
         id = sel;
-        // fetch latest community data from backend
-        fetchCommunity(Number(id));
+        // fetch latest community data from backend only if id is numeric
+        const numericMatch = String(id).match(/^\d+$/);
+        if (numericMatch) {
+          fetchCommunity(Number(id));
+        }
       }
       // fallback: read cached edits if present
       const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
@@ -77,6 +80,8 @@
 
   function toEdit() { goto('/community/edit'); }
   function toDestroy() { goto('/community/destroy/confirm'); }
+  function toNearby() { goto('/community/nearby'); }
+  function toRequest() { goto('/community/request'); }
   function doLogout() {
     if (!confirm('ログアウトしますか？')) return;
     try { sessionStorage.removeItem('selectedCommunityId'); } catch (e) {}
@@ -102,6 +107,14 @@
       <button class="btn danger" on:click={toDestroy}>コミュニティを破棄</button>
       <button class="btn" on:click={doLogout}>ログアウト</button>
     </div>
+
+    <div class="nav-links">
+      <h3>メニュー</h3>
+      <ul>
+        <li><button class="link-btn" on:click={toNearby}>近くのコミュニティ</button></li>
+        <li><button class="link-btn" on:click={toRequest}>支援リクエスト</button></li>
+      </ul>
+    </div>
   </section>
   </div>
 </main>
@@ -111,6 +124,12 @@
   .actions { display:flex; gap:0.75rem; margin-top:1rem }
   .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer }
   .btn.danger { background:#e74c3c; color:#fff }
+  .nav-links { margin-top:1.5rem; border-top:1px solid #eee; padding-top:1rem }
+  .nav-links h3 { margin-bottom:0.5rem; font-size:1.1rem }
+  .nav-links ul { list-style:none; padding:0; margin:0 }
+  .nav-links li { margin-bottom:0.5rem }
+  .link-btn { padding:0.5rem 0.75rem; border:none; background:none; color:#007bff; text-decoration:underline; cursor:pointer; font-size:1rem }
+  .link-btn:hover { color:#0056b3 }
   /* 非操作テキストを黒にする（見出し・段落など）。ボタンは上書きしない */
   .force-black-text h1,
   .force-black-text h2,

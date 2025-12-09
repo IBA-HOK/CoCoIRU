@@ -13,27 +13,55 @@
   });
 
   function back() { goto('/community/form'); }
-  function create() {
-    // UI-only: mark created by storing a 'selectedCommunityId' and storing details under a demo key
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+
+  async function create() {
+    // Persist community to backend and use returned numeric community_id
     try {
-      const id = `comm-${Math.random().toString(36).slice(2,9)}`;
-      sessionStorage.setItem('selectedCommunityId', id);
-      const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
-      const edits = JSON.parse(editsRaw || '{}');
-      // Support either {adults, children} or {count}
       const total = typeof draft.count === 'number' ? draft.count : (draft.adults||0)+(draft.children||0);
-      edits[id] = { name: draft.name || '', count: total };
-      sessionStorage.setItem('communityEdits', JSON.stringify(edits));
-      sessionStorage.setItem('lastCreatedCommunity', id);
-      sessionStorage.removeItem('newCommunityDraft');
-    } catch (e) {}
+      const payload = {
+        name: draft.name || '',
+        password: draft.password || '',
+        member_count: total
+      };
 
-    try {
+      const res = await fetch(`${API_BASE}/api/v1/communities/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.detail || `作成に失敗しました (status=${res.status})`);
+      }
+
+      const data = await res.json();
+      const numericId = data.community_id;
+      if (!numericId) throw new Error('サーバーから有効なコミュニティIDが返されませんでした');
+
+      // store numeric id as string for sessionStorage and auth store
+      const idStr = String(numericId);
+      sessionStorage.setItem('selectedCommunityId', idStr);
+
+      // cache display data
+      try {
+        const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
+        const edits = JSON.parse(editsRaw || '{}');
+        edits[idStr] = { name: data.name || draft.name || '', count: data.member_count || total };
+        sessionStorage.setItem('communityEdits', JSON.stringify(edits));
+        sessionStorage.setItem('lastCreatedCommunity', idStr);
+        sessionStorage.removeItem('newCommunityDraft');
+      } catch (e) {}
+
       // update auth store so other pages react immediately
-      login(sessionStorage.getItem('selectedCommunityId') || '');
-    } catch (e) {}
+      try { login(sessionStorage.getItem('selectedCommunityId') || ''); } catch (e) {}
 
-    goto('/community/account');
+      goto('/community/account');
+    } catch (e) {
+      console.error(e);
+      alert(e instanceof Error ? e.message : 'コミュニティ作成エラー');
+    }
   }
 </script>
 
