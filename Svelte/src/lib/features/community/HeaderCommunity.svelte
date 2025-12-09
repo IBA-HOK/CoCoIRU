@@ -43,7 +43,7 @@
 
   <nav class="main-nav">
     <a 
-      href="/community" 
+      href="/community/community_Login/login" 
       class="nav-item" 
       class:active={isActive('/community/community_Login')}
     >
