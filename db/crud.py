@@ -164,6 +164,18 @@ def get_request_content(db: Session, request_content_id: int):
 def get_request_contents(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.RequestContent).offset(skip).limit(limit).all()
 
+
+def get_supported_items(db: Session):
+    """Request_content に登録されている品目に対応する Items レコードを返す
+    重複を除き Items モデルのリストを返す（items_id, item_name, unit を含む）
+    """
+    return (
+        db.query(models.Items)
+        .join(models.RequestContent, models.Items.items_id == models.RequestContent.items_id)
+        .distinct()
+        .all()
+    )
+
 def create_request_content(db: Session, request_content: schemas.RequestContentCreate):
     db_request_content = models.RequestContent(**request_content.model_dump())
     db.add(db_request_content)
