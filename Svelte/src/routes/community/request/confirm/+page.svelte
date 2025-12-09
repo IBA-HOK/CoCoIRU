@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { requestItems } from '$lib/features/request/requestItems';
-  import { Button } from '$lib';
+  import { Button, Title } from '$lib';
   import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
   import type { RequestItem } from '$lib/features/request/requestItems'; // ★追加：型
 	import RequestNoteInput from '$lib/features/request/components/RequestNoteInput.svelte';
@@ -123,6 +123,10 @@
   }
 </script>
 
+<Title
+	titleText="支援物資の申請"
+/>
+
 <div class="container">
 	<Surface class="confirm-card">
 		<div class="header-area">
@@ -154,13 +158,10 @@
 
 <style>
 	.container {
-		max-width: 600px;
-		min-height: 600px;
+		max-width: 800px;
 		margin: 0 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
-		height: calc(100vh - 48px);
 	}
 
 	:global(.confirm-card) {
