@@ -23,6 +23,7 @@
   let isDragging = false;
   let dragStartCoords: maplibregl.LngLat | null = null;
   let hoverPopup: maplibregl.Popup | null = null;// 現在のカーソル位置のポップアップ（ホバー用）
+  let currentMarkers: maplibregl.Marker[] = [];
 
   // --- ヘルパー関数: 中心と半径(km)から円のポリゴン座標を生成 ---
   function createGeoJSONCircle(center: [number, number], radiusInkm: number, points: number = 64) {
@@ -77,21 +78,13 @@
 
   // --- 半径や中心の監視 ---
   $: if (map && !isDragging) {
-    // 円の位置を更新
-    updateCircle(center, radiusKm);
+     // ドラッグ中でなければ、Propsの変更を地図に反映
+     updateCircle(center, radiusKm);
+  }
 
-    // 地図の中心も移動させる (現在地と大きく違う場合のみ)
-    const currentCenter = map.getCenter();
-    const dist = Math.abs(currentCenter.lng - center[0]) + Math.abs(currentCenter.lat - center[1]);
-    
-    // わずかなズレは無視し、大きく変わったときだけカメラを動かす
-    if (dist > 0.001) {
-      map.flyTo({
-        center: center,
-        speed: 1.2, // アニメーション速度
-        curve: 1.4
-      });
-    }
+  // --- markersプロパティの変更を監視 ---
+  $: if (map && markers) { 
+    drawMarkers(markers);
   }
 
   onMount(() => {
@@ -160,8 +153,8 @@
       });
       // 初期描画
       updateCircle(center, radiusKm);
-      // --- マーカー配置 ---
-      renderMarkers();
+      // マーカー配置
+      drawMarkers(markers);
     });
 
 
@@ -205,37 +198,42 @@
       // isSelectionMode = false; 
     });
   });
-  // マーカーを再描画する関数
-function renderMarkers() {
-    markers.forEach((markerInfo) => {
-      
-      // 1. まずマーカーを作成して地図に追加し、変数 marker に入れる
-      const marker = new maplibregl.Marker()
-        .setLngLat([markerInfo.lng, markerInfo.lat])
-        .addTo(map);
 
-      // 2. 生成されたマーカーの HTML要素(DOM) を取得する
-      const element = marker.getElement();
-      
-      // 3. マウスカーソルを指マークにする（クリックできる感を出す）
+  function drawMarkers(markerData: MarkerInfo[]) {
+    if (!map) return;
+    
+    // 既存マーカーの削除
+    currentMarkers.forEach(marker => marker.remove());
+    currentMarkers = []; // 配列を空にする
+
+    // 新しいマーカーの追加
+    markerData.forEach((markerInfo) => {
+      // マーカー要素を作成 (カスタムマーカーを使用する場合)
+      const element = document.createElement('div');
+      element.className = 'custom-marker';
+      // カスタムアイコンの設定 (例: 赤い円)
+      element.style.backgroundColor = 'red';
+      element.style.width = '12px';
+      element.style.height = '12px';
+      element.style.borderRadius = '50%';
+      element.style.border = '2px solid white';
+      element.style.boxShadow = '0 0 5px rgba(0,0,0,0.5)';
       element.style.cursor = 'pointer';
 
-      // 4. その要素にイベントリスナーを直接くっつける
-
-      // --- マウスオーバー: 概要ポップアップ表示 ---
+      // --- イベント: マウスオーバーで概要 (Popup) ---
       element.addEventListener('mouseenter', () => {
-        if (!map) return;
+        if (hoverPopup) hoverPopup.remove();
         hoverPopup = new maplibregl.Popup({
             closeButton: false,
             closeOnClick: false,
-            offset: 25 // ピンの頭上に表示されるよう調整
+            offset: 25
         })
         .setLngLat([markerInfo.lng, markerInfo.lat])
         .setHTML(`<div style="font-weight:bold; padding:4px;">${markerInfo.caption}</div>`)
         .addTo(map);
       });
 
-      // --- マウスリーブ: ポップアップ削除 ---
+      // --- イベント: マウスリーブ: ポップアップ削除 ---
       element.addEventListener('mouseleave', () => {
         if (hoverPopup) {
             hoverPopup.remove();
@@ -243,11 +241,18 @@ function renderMarkers() {
         }
       });
 
-      // --- クリック: 詳細モーダル表示 (親へ通知) ---
+      // --- イベント: クリック: 詳細モーダル表示 (親へ通知) ---
       element.addEventListener('click', (e) => {
-        e.stopPropagation(); // 地図のクリックイベント等が暴発しないように止める
+        e.stopPropagation(); 
         dispatch('markerClick', markerInfo);
       });
+      
+      // マーカーを地図に追加
+      const marker = new maplibregl.Marker({ element: element }) // カスタム要素を渡す
+        .setLngLat([markerInfo.lng, markerInfo.lat])
+        .addTo(map);
+        
+      currentMarkers.push(marker); // マーカーを配列に保持
     });
   }
 

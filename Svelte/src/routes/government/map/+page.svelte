@@ -1,26 +1,29 @@
 <script lang="ts">
-	import Modal from '$lib/MapInfoModal.svelte';
+import { onMount } from 'svelte';
 	import type { PageData } from './$types';
+	
+	// --- コンポーネントのインポート (dev4の構造を採用) ---
 	import Title from '$lib/components/Title.svelte';
-
-	// マップコンポーネント
-	import ShelterMap from '$lib/features/government/components/ShelterMap.svelte';
-	// ★作成したサイドバーコンポーネント
-	import ShelterMapSidebar from '$lib/features/government/components/ShelterMapSidebar.svelte';
 	import Surface from '$lib/components/Surface.svelte';
+	import Modal from '$lib/MapInfoModal.svelte';
 	import mapIcon from '$lib/assets/map.png';
+	
+	// マップ機能コンポーネント
+	import ShelterMap from '$lib/features/government/components/ShelterMap.svelte';
+	import ShelterMapSidebar from '$lib/features/government/components/ShelterMapSidebar.svelte';
 
 	export let data: PageData;
 
 	// --- 設定 ---
-	// Use proxied relative path so Vite dev server forwards to backend (same-origin)
+	// dev4の設定(/api/v1)を採用しつつ、あなたのロジックで使います
 	const API_BASE_URL = '/api/v1';
 
-	// --- 状態 ---
+	// --- 状態変数 (あなたのロジックを採用) ---
 	let searchKeyword = '';
 	let searchRadiusKm = 10.0;
 	let isSelectionMode = false;
-	let mapCenter: [number, number] = data.mapCenter;
+	// 初期値はサーバーデータまたはデフォルト座標
+	let mapCenter: [number, number] = data.mapCenter || [136.884, 35.170];
 
 	// Initialize communities from page load data (SSR pre-fetched)
 	let communities: any[] = data.communities || [];
@@ -36,77 +39,95 @@
 		{ lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
 	];
 	// マーカー生成
-	$: mapMarkers = (() => {
-		const filtered = communities
-			.filter((c) => c.latitude != null && c.longitude != null)
-			.map((c) => ({
-				lat: c.latitude,
-				lng: c.longitude,
-				caption: c.name || '名前未設定',
-				detail: c
-			}))
-			.filter((m) => m.caption.includes(searchKeyword));
-		console.log('[+page.svelte] mapMarkers updated:', filtered);
-		return filtered;
-	})();
+  $: mapMarkers = [
+    ...dummyMarkers, // 先頭にダミーを追加
+    ...communities // onMountでAPIから取得したデータ
+    .filter(c => c.latitude != null && c.longitude != null) // 座標がないデータは除外
+    .map(c => ({
+      lat: c.latitude,
+      lng: c.longitude,
+      caption: c.name || '名前未設定',
+      detail: c // 詳細モーダル用に生のデータを丸ごと渡す
+    }))
+    .filter(m => m.caption.includes(searchKeyword))
+  ];
 
 	// API通信処理など (変更なしのため省略)
-	async function fetchShelters(lat: number, lng: number, rangeKm: number) {
-		try {
-			const url = `${API_BASE_URL}/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${rangeKm}`;
-			// Cookie (access_token) を送るため credentials: 'include' を指定
-			const res = await fetch(url, { credentials: 'include' });
-			if (!res.ok) throw new Error(`API Error: ${res.status}`);
-			const data = await res.json();
-			console.log('[+page.svelte] API response data:', data);
-			communities = data;
-			console.log('[+page.svelte] communities state updated with', communities.length, 'items');
-		} catch (e) {
-			console.error('データ取得失敗:', e);
-		}
-	}
+  async function fetchShelters(lat: number, lng: number, rangeKm: number) {
+    try {
+      // API Usage ドキュメントに基づくエンドポイント: /gnss/nearby
+      const url = `${API_BASE_URL}/gnss/nearby?latitude=${lat}&longitude=${lng}&range=${rangeKm}`;
+      console.log(`Fetching: ${url}`); // デバッグ用
 
-	// 検索処理
-	async function searchLocation() {
-		if (!locationQuery) return;
-		isSearchingLocation = true;
-		try {
-			const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationQuery)}&limit=1`;
-			const res = await fetch(url);
-			const json = await res.json();
-			if (json && json.length > 0) {
-				const result = json[0];
-				const lat = parseFloat(result.lat);
-				const lon = parseFloat(result.lon);
-				mapCenter = [lon, lat];
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+      }
+      
+      const json = await res.json();
+      communities = json; // データを更新 (画面に反映される)
+      console.log("取得データ:", communities);
+
+    } catch (e) {
+      console.error("避難所データの取得に失敗しました:", e);
+      // エラー時はリストを空にするか、以前のままにするか。今回はアラートを出す
+      // alert("データの取得に失敗しました。バックエンドが起動しているか確認してください。");
+    }
+  }
+
+  // --- 関数: 住所・地名検索 (Nominatim API) ---
+  async function searchLocation() {
+    if (!locationQuery) return;
+    isSearchingLocation = true;
+
+    try {
+      // OpenStreetMapの検索APIを叩く
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationQuery)}&limit=1`;
+      const res = await fetch(url);
+      const json = await res.json();
+
+      if (json && json.length > 0) {
+        const result = json[0];
+        const lat = parseFloat(result.lat);
+        const lon = parseFloat(result.lon);
+        mapCenter = [lon, lat];
 				fetchShelters(lat, lon, searchRadiusKm);
-			} else {
-				alert('場所が見つかりませんでした');
-			}
-		} catch (e) {
-			console.error(e);
-			alert('検索エラー');
-		} finally {
-			isSearchingLocation = false;
-		}
-	}
+      } else {
+        alert("場所が見つかりませんでした");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("検索エラーが発生しました");
+    } finally {
+      isSearchingLocation = false;
+    }
+  }
 
-	// イベントハンドラ
-	function handleMarkerClick(event: CustomEvent) {
-		selectedCommunity = event.detail;
-		showModal = true;
-	}
-	function handleRadiusPreview(event: CustomEvent) {
-		searchRadiusKm = parseFloat(event.detail.toFixed(2));
-	}
-	function handleRadiusChange(event: CustomEvent) {
-		searchRadiusKm = parseFloat(event.detail.toFixed(2));
-		isSelectionMode = false;
+  // --- イベントハンドラ ---
+  // マーカークリック時
+  function handleMarkerClick(event: CustomEvent) {
+    selectedCommunity = event.detail;
+    showModal = true;
+  }
+
+  // 地図で半径変更中（プレビュー）
+  function handleRadiusPreview(event: CustomEvent) {
+    // 入力欄の数字だけ更新（APIはまだ叩かない）
+    searchRadiusKm = parseFloat(event.detail.toFixed(2));
+  }
+
+  // 地図で半径変更確定
+  function handleRadiusChange(event: CustomEvent) {
+    searchRadiusKm = parseFloat(event.detail.toFixed(2));
+    isSelectionMode = false; // モード終了
+    // APIを再検索
 		fetchShelters(mapCenter[1], mapCenter[0], searchRadiusKm);
-	}
-	function handleCenterChange(event: CustomEvent) {
-		mapCenter = event.detail;
-	}
+  }
+
+  // 地図の中心変更
+  function handleCenterChange(event: CustomEvent) {
+    mapCenter = event.detail;
+  }
 </script>
 
 <Title
