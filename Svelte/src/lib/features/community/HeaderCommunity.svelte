@@ -37,8 +37,8 @@
 </script>
 
 <header class="main-header">
-  <a href="/" class="logo-link">
-    <span class="logo-text">コミュニティ</span>
+  <a href="/community" class="logo-link">
+    <span class="logo-text">CoCoIRU コミュニティ</span>
   </a>
 
   <nav class="main-nav">
@@ -54,14 +54,14 @@
       class="nav-item" 
       class:active={isActive('/community/request')}
     >
-      物品申請
+      支援物資申請
     </a>
     <a 
       href="/community/addItemRequest" 
       class="nav-item" 
       class:active={isActive('/community/addItemRequest')}
     >
-      項目追加
+      品目追加申請
     </a>
   </nav>
 </header>

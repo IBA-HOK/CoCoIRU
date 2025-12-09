@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-	import { Button } from '$lib';
+	import { Button, Title } from '$lib';
 	import Surface from '$lib/components/Surface.svelte';
   // ボタン
   function homeButtonClick() {
@@ -11,13 +11,14 @@
   }
 </script>
 
+<Title
+	titleText="支援物資の申請"
+/>
+
 <div class="container">
-  
   <!-- 完了メッセージカード -->
   <Surface>
     <h1 class="page-title">申請が完了しました</h1>
-    <p class="page-subtitle">ご協力ありがとうございました。</p>
-    
     <div class="image-wrapper">
       <img 
         src="/src/lib/assets/CoCoIRU_emblem.png" 
@@ -46,21 +47,15 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-    min-height: calc(100vh - 4rem);
     justify-content: center;
     padding: 2rem 0;
   }
 
   .page-title {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 2rem 0;
     color: var(--text);
     font-size: 1.5rem;
-  }
-
-  .page-subtitle {
-    color: var(--text-sub);
-    margin: 0 0 2rem 0;
-    font-size: 1rem;
+    text-align: center;
   }
 
   .image-wrapper {
