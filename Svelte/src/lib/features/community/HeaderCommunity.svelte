@@ -45,16 +45,23 @@
     <a 
       href="/community" 
       class="nav-item" 
-      class:active={isActive('/community/')}
+      class:active={isActive('/community/community_Login')}
     >
-      トップに戻る
+      ログイン
     </a>
     <a 
       href="/community/request" 
       class="nav-item" 
       class:active={isActive('/community/request')}
     >
-      申請画面
+      物品申請
+    </a>
+    <a 
+      href="/community/addItemRequest" 
+      class="nav-item" 
+      class:active={isActive('/community/addItemRequest')}
+    >
+      項目追加
     </a>
   </nav>
 </header>

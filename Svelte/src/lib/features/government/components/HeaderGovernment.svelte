@@ -26,6 +26,13 @@
     >
       避難所マップ
     </a>
+    <a 
+      href="/government/addItem" 
+      class="nav-item" 
+      class:active={isActive('/government/addItem')}
+    >
+      支援項目追加要請
+    </a>
   </nav>
 </header>
 
