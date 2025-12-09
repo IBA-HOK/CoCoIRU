@@ -17,7 +17,7 @@
 
 <style>
 	.page-wrapper {
-		height: 100vh;
+		/* height: 100vh; */
 		font-size: 1.0em;
 		background-color: var(--bg);
 		color: var(--text);
