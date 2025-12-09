@@ -8,8 +8,9 @@
 	import Surface from '$lib/components/Surface.svelte';
   import { communityId } from '$lib/stores/auth';
 
+  import { requestNote } from '$lib/features/request/requestNoteStore'; // ★追加
   // 特記事項
-  let notes = '';
+  //let notes = '';
 
   // 現在のコミュニティID（数値、未確定なら null）
   let currentCommunityId: number | null = null;
@@ -40,7 +41,8 @@
     const rcPayload = {
       items_id: item.id,
       number: item.value,
-      other_note: notes
+      //other_note: notes
+      other_note: $requestNote   // ★store の値に置き換え
     };
 
     const rcRes = await fetch(`${API_BASE}/api/v1/request_content/`, {
@@ -136,7 +138,7 @@
 		</section>
 
 		<section class="section-card">
-			<RequestNoteInput bind:value={notes} />
+			<RequestNoteInput />
 		</section>
 
 		<div class="request_footer">

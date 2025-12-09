@@ -1,11 +1,16 @@
 <script lang="ts">
-	export let value: string = '';
+	//export let value: string = '';
+	import { requestNote } from '$lib/features/request/requestNoteStore';
 </script>
 
 <div class="note-input-container">
 	<label for="note-textarea" class="label">特記事項</label>
 	<div class="input-wrapper">
-		<textarea id="note-textarea" bind:value placeholder="ご要望があればご記入ください" rows="3"
+		<textarea 
+			id="note-textarea" 
+			bind:value={$requestNote}   
+			placeholder="ご要望があればご記入ください" 
+			rows="3"
 		></textarea>
 	</div>
 </div>
