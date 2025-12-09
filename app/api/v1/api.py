@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     login,
     token,
     government
+    ,public_items
 )
 
 api_router = APIRouter()
@@ -40,3 +41,6 @@ api_router.include_router(login.router, prefix="/login", tags=["login"])
 api_router.include_router(token.router, prefix="/token", tags=["Auth"])
 # 12. Government Dashboard
 api_router.include_router(government.router, prefix="/government", tags=["Government Dashboard"])
+
+# 13. Public endpoints (認証不要)
+api_router.include_router(public_items.router, prefix="/public", tags=["Public"])

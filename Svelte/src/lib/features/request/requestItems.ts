@@ -6,17 +6,28 @@ export type RequestItem = {
   id: number;      // ★ 必ず存在する
   text: string;
   value: number;
+  unit?: string;
 };
 
-const initialRequestItems: RequestItem[] = [
-  { id: 1, text: '食料', value: 0 },
-  { id: 2, text: '毛布', value: 0 },
-  { id: 3, text: '乳児用粉・液体ミルク', value: 0 },
-  { id: 4, text: '乳児・小児用おむつ', value: 0 },
-  { id: 5, text: '生理用品', value: 0 },
-  { id: 6, text: 'トイレットペーパー', value: 0 },
-  { id: 7, text: '簡易・携帯トイレ', value: 0 },
-  { id: 8, text: '大人用おむつ', value: 0 }
-];
+// 初期は空で、APIから動的に読み込む
+export const requestItems = writable<RequestItem[]>([]);
 
-export const requestItems = writable(initialRequestItems);
+async function loadRequestItems() {
+  try {
+    const res = await fetch('/api/v1/public/items');
+    if (!res.ok) throw new Error(`Failed to fetch request items: ${res.status}`);
+    const items = await res.json();
+    const mapped: RequestItem[] = items.map((it: any) => ({
+      id: it.items_id,
+      text: it.item_name ?? '',
+      value: 0,
+      unit: it.unit ?? ''
+    }));
+    requestItems.set(mapped);
+  } catch (err) {
+    console.error('requestItems: failed to load items', err);
+  }
+}
+
+// モジュールロード時に一度読み込む
+loadRequestItems();
