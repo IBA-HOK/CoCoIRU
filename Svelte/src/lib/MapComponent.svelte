@@ -13,7 +13,7 @@
   }
 
   export let markers: MarkerInfo[] = [];
-  export let center: [number, number] = [136.884, 35.170];
+  export let initialCenter: [number, number] = [136.884, 35.170];
   export let initialZoom: number = 10;
   export let radiusKm: number = 5;
   export let isSelectionMode = false; // 範囲指定モードかどうか
@@ -23,7 +23,6 @@
   let isDragging = false;
   let dragStartCoords: maplibregl.LngLat | null = null;
   let hoverPopup: maplibregl.Popup | null = null;// 現在のカーソル位置のポップアップ（ホバー用）
-  let currentMarkers: maplibregl.Marker[] = [];
 
   // --- ヘルパー関数: 中心と半径(km)から円のポリゴン座標を生成 ---
   function createGeoJSONCircle(center: [number, number], radiusInkm: number, points: number = 64) {
@@ -79,12 +78,7 @@
   // --- 半径や中心の監視 ---
   $: if (map && !isDragging) {
      // ドラッグ中でなければ、Propsの変更を地図に反映
-     updateCircle(center, radiusKm);
-  }
-
-  // --- markersプロパティの変更を監視 ---
-  $: if (map && markers) { 
-    drawMarkers(markers);
+     updateCircle(initialCenter, radiusKm);
   }
 
   onMount(() => {
@@ -108,7 +102,7 @@
           maxzoom: 19
         }]
       },
-      center: center,
+      center: initialCenter,
       zoom: initialZoom
     });
 
@@ -152,9 +146,9 @@
         }
       });
       // 初期描画
-      updateCircle(center, radiusKm);
-      // マーカー配置
-      drawMarkers(markers);
+      updateCircle(initialCenter, radiusKm);
+      // --- マーカー配置 ---
+      renderMarkers();
     });
 
 
@@ -198,61 +192,50 @@
       // isSelectionMode = false; 
     });
   });
-
-  function drawMarkers(markerData: MarkerInfo[]) {
-    if (!map) return;
-    
-    // 既存マーカーの削除
-    currentMarkers.forEach(marker => marker.remove());
-    currentMarkers = []; // 配列を空にする
-
-    // 新しいマーカーの追加
-    markerData.forEach((markerInfo) => {
-      // マーカー要素を作成 (カスタムマーカーを使用する場合)
-      const element = document.createElement('div');
-      element.className = 'custom-marker';
-      // カスタムアイコンの設定 (例: 赤い円)
-      element.style.backgroundColor = 'red';
-      element.style.width = '12px';
-      element.style.height = '12px';
-      element.style.borderRadius = '50%';
-      element.style.border = '2px solid white';
-      element.style.boxShadow = '0 0 5px rgba(0,0,0,0.5)';
-      element.style.cursor = 'pointer';
+  // マーカーを再描画する関数
+  function renderMarkers() {
+    // 既存マーカーの削除ロジックを入れるのが理想ですが、今回は簡易的に追加のみ
+    markers.forEach((markerInfo) => {
+      // マーカー要素を作成
+      const el = document.createElement('div');
+      el.className = 'custom-marker';
+      el.style.backgroundImage = 'url(https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png)'; // 仮アイコン
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.backgroundSize = 'cover';
+      el.style.cursor = 'pointer';
 
       // --- イベント: マウスオーバーで概要 (Popup) ---
-      element.addEventListener('mouseenter', () => {
-        if (hoverPopup) hoverPopup.remove();
+      el.addEventListener('mouseenter', () => {
+        if (!map) return;
         hoverPopup = new maplibregl.Popup({
             closeButton: false,
             closeOnClick: false,
-            offset: 25
+            offset: 15
         })
         .setLngLat([markerInfo.lng, markerInfo.lat])
-        .setHTML(`<div style="font-weight:bold; padding:4px;">${markerInfo.caption}</div>`)
+        .setHTML(`<div style="font-weight:bold;">${markerInfo.caption}</div>`)
         .addTo(map);
       });
 
-      // --- イベント: マウスリーブ: ポップアップ削除 ---
-      element.addEventListener('mouseleave', () => {
+      el.addEventListener('mouseleave', () => {
         if (hoverPopup) {
             hoverPopup.remove();
             hoverPopup = null;
         }
       });
 
-      // --- イベント: クリック: 詳細モーダル表示 (親へ通知) ---
-      element.addEventListener('click', (e) => {
-        e.stopPropagation(); 
+      // --- イベント: クリックで詳細モーダル ---
+      el.addEventListener('click', () => {
+        // 親へ通知
         dispatch('markerClick', markerInfo);
       });
-      
-      // マーカーを地図に追加
-      const marker = new maplibregl.Marker({ element: element }) // カスタム要素を渡す
+
+      // マーカー追加 (デフォルトのピンを使う場合)
+      new maplibregl.Marker() // el を渡せばカスタムアイコンになります
         .setLngLat([markerInfo.lng, markerInfo.lat])
+        // .setPopup... // クリック時のPopupは無効化してModalにするためセットしない
         .addTo(map);
-        
-      currentMarkers.push(marker); // マーカーを配列に保持
     });
   }
 
