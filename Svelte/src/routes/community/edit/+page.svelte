@@ -5,6 +5,7 @@
   let communityId = '';
   let name = '';
   let count = 1;
+  let password = '';
 
   onMount(() => {
     try {
@@ -25,6 +26,7 @@
         const d = JSON.parse(saved);
         if (d?.name) name = d.name;
         if (typeof d?.count === 'number') count = d.count;
+        if (d?.password) password = d.password;
       }
     } catch (e) {}
   });
@@ -33,7 +35,7 @@
   function dec() { count = Math.max(0, count - 1); }
 
   function toConfirm() {
-    const draft = { communityId, name, count };
+    const draft = { communityId, name, count, password };
     try { sessionStorage.setItem('editDraft', JSON.stringify(draft)); } catch (e) {}
     goto('/community/edit/confirm');
   }
@@ -56,6 +58,10 @@
         <input type="number" bind:value={count} min="0" />
         <button class="small" type="button" on:click={inc}>＋</button>
       </div>
+    </label>
+
+    <label>パスワード (更新用)
+      <input type="password" bind:value={password} placeholder="コミュニティのパスワード" />
     </label>
 
     <div class="actions">

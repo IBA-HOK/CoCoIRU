@@ -5,22 +5,75 @@
   let id = '';
   let name = '';
   let count: number | null = null;
+  let isLoading = false;
+  let error = '';
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
   onMount(() => {
     try {
       const sel = sessionStorage.getItem('selectedCommunityId');
-      if (sel) id = sel;
+      if (sel) {
+        id = sel;
+        // fetch latest community data from backend
+        fetchCommunity(Number(id));
+      }
+      // fallback: read cached edits if present
       const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
       const edits = JSON.parse(editsRaw || '{}');
       const e = edits[id] || null;
-      name = e?.name || '';
-      count = typeof e?.count === 'number' ? e.count : null;
+      if (!name) name = e?.name || '';
+      if (count === null) count = typeof e?.count === 'number' ? e.count : null;
     } catch (e) {
       id = '';
       name = '';
       count = null;
     }
   });
+
+  async function fetchCommunity(itemId: number) {
+    if (!itemId) return;
+    isLoading = true;
+    error = '';
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/communities/${itemId}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        // if unauthorized or not found, clear values
+        if (res.status === 401 || res.status === 403) {
+          error = '認証が必要です。ログインしてください。';
+        } else if (res.status === 404) {
+          error = 'コミュニティが見つかりません';
+        } else {
+          const d = await res.json().catch(() => ({}));
+          error = d.detail || 'コミュニティ情報の取得に失敗しました';
+        }
+        name = '';
+        count = null;
+        return;
+      }
+
+      const data = await res.json();
+      name = data.name || '';
+      // db schema uses member_count
+      count = typeof data.member_count === 'number' ? data.member_count : (typeof data.member_id === 'number' ? data.member_id : null);
+
+      // cache a lightweight copy for offline/faster load
+      try {
+        const editsRaw = sessionStorage.getItem('communityEdits') || '{}';
+        const edits = JSON.parse(editsRaw || '{}');
+        edits[String(itemId)] = { name, count };
+        sessionStorage.setItem('communityEdits', JSON.stringify(edits));
+      } catch (e) {}
+    } catch (e) {
+      console.error(e);
+      error = e instanceof Error ? e.message : '通信エラー';
+    } finally {
+      isLoading = false;
+    }
+  }
 
   function toEdit() { goto('/community/edit'); }
   function toDestroy() { goto('/community/destroy/confirm'); }
