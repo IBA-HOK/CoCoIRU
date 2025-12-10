@@ -1,17 +1,30 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { Hamburger } from '$lib';
 
-  // 現在のパスに基づいて、アクティブなナビゲーションリンクを判定する関数
-  // $: を使ってパス変更時にリアクティブに再計算させます
+  const navLinks = [
+    { href: '/government/requestlist', label: '支援要請一覧' },
+    { href: '/government/map', label: '避難所マップ' },
+    { href: '/government/addItem', label: '支援品目追加' }
+  ];
+  
   $: isActive = (path: string) => $page.url.pathname.startsWith(path);
 </script>
 
 <header class="main-header">
+
+  <!-- モバイル用ハンバーガーメニュー -->
+  <div class="mobile-only">
+    <Hamburger links={navLinks} />
+  </div>
+
+  <!-- タイトルロゴ -->
   <a href="/government" class="logo-link">
-    <span class="logo-text">行政ダッシュボード</span>
+    <span class="logo-text">CoCoIRU アドミン</span>
   </a>
 
-  <nav class="main-nav">
+  <!-- デスクトップ用ナビゲーション -->
+  <nav class="main-nav desktop-only">
     <a 
       href="/government/requestlist" 
       class="nav-item" 
@@ -31,7 +44,7 @@
       class="nav-item" 
       class:active={isActive('/government/addItem')}
     >
-      支援項目追加要請
+      支援品目追加
     </a>
   </nav>
 </header>
@@ -43,12 +56,6 @@
     padding: 20px 50px;
     display: flex;
     align-items: center;
-  }
-
-  /* ロゴのリンク */
-  .logo-img img {
-    height: 40px;
-    width: auto;
   }
 
   .logo-link {
@@ -101,5 +108,25 @@
     height: 3px;
     background-color: var(--on-primary);
     border-radius: 2px;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  /* スマホサイズ(768px以下)のとき */
+  @media (max-width: 768px) {
+    .desktop-only {
+      display: none;
+    }
+    
+    .mobile-only {
+      display: block;
+    }
+    
+    .main-header {
+      padding: 15px 20px;
+      justify-content: space-between;
+    }
   }
 </style>
