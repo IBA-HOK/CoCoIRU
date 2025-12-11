@@ -1,82 +1,22 @@
 <script lang="ts">
-    interface RequestItem {
-        request_id: number;
-        community_name: string | null;
-        status: string;
-        number: number;
-        unit: string | null;
-        created_at: string | null;
-    }
+    import { RequestTable } from '$lib';
+    import { BackLink } from '$lib';
 
-    interface LoadData {
-        itemName: string;
-        requests: RequestItem[];
-    }
+    export let data: any;
 
-    export let data: LoadData;
-
-    const itemName = data.itemName;
-    const requests = data.requests || [];
-
-    // 並び替え用の状態管理変数
-    let sortKey: string = 'pending'; // 初期値: 未対応数
-    let sortDesc: boolean = true;    // 初期値: 降順 (大きい/新しい順)
-
-    // ソート処理
-    $: sortedRequests = [...requests].sort((a, b) => {
-        let valA: any, valB: any;
-
-        if (sortKey === 'number') {
-            valA = a.number || 0;
-            valB = b.number || 0;
-        } else if (sortKey === 'status') {
-            valA = a.status;
-            valB = b.status;
-        } else if (sortKey === 'time') {
-            valA = a.created_at || '';
-            valB = b.created_at || '';
-        }
-
-        if (valA < valB) return sortDesc ? 1 : -1;
-        if (valA > valB) return sortDesc ? -1 : 1;
-        return 0;
-    })
-
-    // ソートハンドラ
-    function handleSort(key: string) {
-        if (sortKey === key) {
-            sortDesc = !sortDesc; // 同じキーなら昇順/降順を反転
-        } else {
-            sortKey = key;
-            sortDesc = true; // 新しいキーなら降順リセット (ID以外は降順スタートが見やすい場合が多い)
-             // IDの場合は昇順スタートの方が自然かもしれないので微調整
-            if (key === 'id') sortDesc = false;
-        }
-    }
-
-    // ソートアイコン取得
-    function getSortIcon(key: string) {
-        if (sortKey !== key) return '↕'; 
-        return sortDesc ? '▼' : '▲';
-    }
-
-    // 集計: 未対応の合計個数を計算
-    const totalPending = requests
-        .filter(r => r.status === 'pending')
-        .reduce((sum, r) => sum + r.number, 0);
-
-    // 集計: 単位の取得 (リストの最初のアイテムから取得、なければ空)
-    const unit = requests.length > 0 && requests[0].unit ? requests[0].unit : '';
-
-    function formatDate(dateStr: string | null): string {
-        if (!dateStr) return '-';
-        return dateStr.substring(5, 16).replace('T', ' ');
-    }
-
+    $: itemName = data.itemName;
+    $: requests = data.requests || [];
+    
+    $: totalPending = requests
+        .filter((r: any) => r.status === 'pending')
+        .reduce((sum: number, r: any) => sum + (r.number || 0), 0);
+    
+    $: unit = requests.length > 0 && requests[0].unit ? requests[0].unit : '';
 </script>
 
 <div class="item-detail-container">
-    <a href="/government/requestlist" class="back-link">← 一覧に戻る</a>
+    <BackLink detailMode="item" />
+    <!-- <a href="/government/requestlist" class="back-link">← 一覧に戻る</a> -->
 
     <h1>{itemName} の要請状況</h1>
     <!-- 📦  -->
@@ -87,42 +27,8 @@
         <p><strong>未対応合計数量:</strong> <span class="total-count">{totalPending} {unit}</span></p>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>コミュニティ名</th>
-                <th class="sortable" on:click={() => handleSort('number')}>
-                    要請個数 <span class="sort-icon">{getSortIcon('number')}</span>
-                </th>
-                <th class="sortable" on:click={() => handleSort('status')}>
-                    ステータス <span class="sort-icon">{getSortIcon('status')}</span>
-                </th>
-                <th class="sortable" on:click={() => handleSort('time')}>
-                    最新の要請日時 <span class="sort-icon">{getSortIcon('time')}</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each sortedRequests as req (req.request_id)}
-                <tr>
-                    <td class="community-name">{req.community_name || '不明なコミュニティ'}</td>
-                    <td>
-                        <span class="count-value">{req.number} {req.unit || ''}</span>
-                    </td>
-                    <td>
-                        <span class="status-tag status-{req.status}">{req.status}</span>
-                    </td>
-                    <td>{formatDate(req.created_at)}</td>
-                </tr>
-            {/each}
-            
-            {#if requests.length === 0}
-                <tr>
-                    <td colspan="4" class="no-data">この品目に対する要請は現在ありません。</td>
-                </tr>
-            {/if}
-        </tbody>
-    </table>
+    <RequestTable requests={requests} viewMode="item" />
+
 </div>
 
 <style>
@@ -137,8 +43,9 @@
         color: #555;
         text-decoration: none;
     }
-    .back-link:hover { text-decoration: underline; }
-
+    .back-link:hover { 
+        text-decoration: underline; 
+    }
     h1 {
         color: #d35400; /* Orange/Brown */
         border-bottom: 2px solid #d35400;
@@ -160,68 +67,5 @@
         font-size: 1.2em;
         font-weight: bold;
         color: #d35400;
-    }
-
-    /* テーブル */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 12px 15px;
-        text-align: left;
-    }
-    th {
-        background-color: #fae6d2; /* 薄いオレンジ */
-    }
-    .community-name {
-        font-weight: bold;
-        color: #2c3e50;
-    }
-    .count-value {
-        font-weight: bold;
-        color: #d35400;
-    }
-    .no-data {
-        text-align: center;
-        padding: 30px;
-        color: #777;
-    }
-
-    /* ステータス */
-    .status-tag {
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.85em;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    .status-pending { 
-        background-color: #ffcc80; 
-        color: #e65100; 
-    }
-    .status-processing { 
-        background-color: #b3e5fc; 
-        color: #0277bd; 
-    }
-    .status-completed { 
-        background-color: #c8e6c9; 
-        color: #2e7d32; 
-    }
-
-    .sortable {
-        cursor: pointer;
-        user-select: none;
-        transition: background-color 0.2s;
-    }
-    .sortable:hover {
-        background-color: #b2dfdb;
-    }
-    .sort-icon {
-        font-size: 0.8em;
-        margin-left: 5px;
-        color: #00796b;
     }
 </style>
