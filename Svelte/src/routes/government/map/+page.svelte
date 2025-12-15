@@ -190,11 +190,14 @@ import { onMount } from 'svelte';
 		background-color: var(--bg);
 		color: var(--text);
 		flex: 1;
+		align-items: stretch;
 	}
 
 	.sidebar-content {
 		width: 400px;
 		flex-shrink: 0;
+		display: flex;
+        flex-direction: column;
 	}
 
 	.main-content {

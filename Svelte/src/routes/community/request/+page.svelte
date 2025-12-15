@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Button, Surface } from '$lib';
+	import { Button, Surface, Title } from '$lib';
 	import { requestItems } from '$lib/features/request/requestItems';
 	import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
 	import AddRequestItemModal from '$lib/features/request/components/AddRequestItemModal.svelte';
@@ -17,11 +17,11 @@
 		goto('/community/request/confirm');
 	}
 </script>
-
+<Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。"/>
 <div class="container">
 	<!-- 申請品目選択カード -->
 	<Surface class="main-content">
-		<h2 class="section-title">申請品目を選択</h2>
+		<h2 class="section-title">品目を選択</h2>
 		<RequestItemGrid on:addClick={() => (showModal = true)} />
 	</Surface>
 
@@ -70,7 +70,6 @@
 		margin: 0 auto;
 		display: flex;
 		flex-direction: row;
-		gap: 24px;
 		align-items: stretch;
 	}
 
@@ -103,7 +102,6 @@
 		justify-content: space-between;
 		align-items: center;
 		border-bottom: 1px solid var(--outline-sub);
-		padding-bottom: 12px;
 	}
 
 	.sidebar-body {
@@ -117,7 +115,6 @@
 		margin-top: auto;
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
 	}
 
 	.summary-line {

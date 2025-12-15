@@ -26,8 +26,6 @@
 		margin: 0 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
-		min-height: calc(100vh - 4rem);
 		justify-content: center;
 		padding: 2rem 0;
 	}
@@ -35,7 +33,7 @@
 	.image-wrapper {
 		display: flex;
 		justify-content: center;
-		margin-bottom: 1rem;
+		margin-bottom: 5rem;
 		padding: 0 20px;
 	}
 
@@ -47,7 +45,6 @@
 	.btn-erea {
 		display: flex;
 		gap: 1rem;
-		margin: 40px;
 		justify-content: center;
 		flex-wrap: wrap;
 	}

@@ -78,10 +78,10 @@
     }
   }
 
-  function toEdit() { goto('/community/edit'); }
-  function toDestroy() { goto('/community/destroy/confirm'); }
-  function toNearby() { goto('/community/nearby'); }
-  function toRequest() { goto('/community/request'); }
+  function toEdit() { goto('/community/community_Login/edit'); }
+  function toDestroy() { goto('/community/community_Login/destroy/confirm'); }
+  function toNearby() { goto('/community/community_Login/nearby'); }
+  function toRequest() { goto('/community/community_Login/request'); }
   function doLogout() {
     if (!confirm('ログアウトしますか？')) return;
     try { sessionStorage.removeItem('selectedCommunityId'); } catch (e) {}

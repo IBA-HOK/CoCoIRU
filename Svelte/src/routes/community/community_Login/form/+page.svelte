@@ -9,7 +9,7 @@
   function toConfirm() {
     const draft = { name, count, password };
     try { sessionStorage.setItem('newCommunityDraft', JSON.stringify(draft)); } catch (e) {}
-    goto('/community/confirm');
+    goto('/community/community_Login/confirm');
   }
   function back() { goto('/community'); }
 </script>
