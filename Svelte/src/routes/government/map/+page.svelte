@@ -1,6 +1,8 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
+	import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
 	
 	// --- コンポーネントのインポート (dev4の構造を採用) ---
 	import Title from '$lib/components/Title.svelte';
@@ -32,15 +34,15 @@ import { onMount } from 'svelte';
 	let showModal = false;
 	let selectedCommunity: any = null;
 	// ダミーデータ
-	const dummyMarkers = [
-		{ lat: 35.6895, lng: 139.6917, caption: '📍 新宿 (テストデータ)' },
-		{ lat: 35.6585, lng: 139.7454, caption: '🗼 東京タワー (テストデータ)' },
-		{ lat: 35.71, lng: 139.8107, caption: '🗼 スカイツリー (テストデータ)' },
-		{ lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
-	];
+	// const dummyMarkers = [
+	// 	{ lat: 35.6895, lng: 139.6917, caption: '📍 新宿 (テストデータ)' },
+	// 	{ lat: 35.6585, lng: 139.7454, caption: '🗼 東京タワー (テストデータ)' },
+	// 	{ lat: 35.71, lng: 139.8107, caption: '🗼 スカイツリー (テストデータ)' },
+	// 	{ lat: 35.6277, lng: 139.7812, caption: '🚢 お台場 (テストデータ)' }
+	// ];
 	// マーカー生成
   $: mapMarkers = [
-    ...dummyMarkers, // 先頭にダミーを追加
+    // ...dummyMarkers, // 先頭にダミーを追加
     ...communities // onMountでAPIから取得したデータ
     .filter(c => c.latitude != null && c.longitude != null) // 座標がないデータは除外
     .map(c => ({
@@ -52,7 +54,7 @@ import { onMount } from 'svelte';
     .filter(m => m.caption.includes(searchKeyword))
   ];
 
-	// API通信処理など (変更なしのため省略)
+	// API通信処理など
   async function fetchShelters(lat: number, lng: number, rangeKm: number) {
     try {
       // API Usage ドキュメントに基づくエンドポイント: /gnss/nearby
@@ -70,8 +72,6 @@ import { onMount } from 'svelte';
 
     } catch (e) {
       console.error("避難所データの取得に失敗しました:", e);
-      // エラー時はリストを空にするか、以前のままにするか。今回はアラートを出す
-      // alert("データの取得に失敗しました。バックエンドが起動しているか確認してください。");
     }
   }
 
@@ -91,7 +91,7 @@ import { onMount } from 'svelte';
         const lat = parseFloat(result.lat);
         const lon = parseFloat(result.lon);
         mapCenter = [lon, lat];
-				fetchShelters(lat, lon, searchRadiusKm);
+				refreshData();
       } else {
         alert("場所が見つかりませんでした");
       }
@@ -101,6 +101,20 @@ import { onMount } from 'svelte';
     } finally {
       isSearchingLocation = false;
     }
+  }
+
+  // データを再取得する
+  function refreshData() {
+    const params = new URLSearchParams($page.url.searchParams);
+    
+    // 現在の状態をクエリパラメータにセット
+    params.set('latitude', mapCenter[1].toString());
+    params.set('longitude', mapCenter[0].toString());
+    params.set('range', searchRadiusKm.toString());
+
+    // URLを更新 (keepFocus: フォーカス維持, noScroll: スクロール防止)
+    goto(`?${params.toString()}`, { keepFocus: true, noScroll: true });
+    fetchShelters(mapCenter[1], mapCenter[0], searchRadiusKm);
   }
 
   // --- イベントハンドラ ---
@@ -120,13 +134,13 @@ import { onMount } from 'svelte';
   function handleRadiusChange(event: CustomEvent) {
     searchRadiusKm = parseFloat(event.detail.toFixed(2));
     isSelectionMode = false; // モード終了
-    // APIを再検索
-		fetchShelters(mapCenter[1], mapCenter[0], searchRadiusKm);
+    refreshData();
   }
 
   // 地図の中心変更
   function handleCenterChange(event: CustomEvent) {
-    mapCenter = event.detail;
+    const [lng, lat] = event.detail;
+    mapCenter = [lng, lat];
   }
 </script>
 
@@ -148,6 +162,7 @@ import { onMount } from 'svelte';
 					bind:isSelectionMode
 					bind:searchKeyword
 					on:search={searchLocation}
+          on:radiusChange={refreshData}
 				/>
 			</Surface>
 		</div>
