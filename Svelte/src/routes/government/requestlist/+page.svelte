@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
     import { Button, Surface, Title } from '$lib';
     import supportIcon from '$lib/assets/support.png';
     import communityIcon from '$lib/assets/community.png';
@@ -51,6 +52,23 @@
 
     // 表示切り替えのロジック
     let currentView: 'community' | 'item' = 'community';
+
+    $: {
+        const queryMode = $page.url.searchParams.get('viewMode');
+        if (queryMode === 'item') {
+            currentView = 'item';
+        } else {
+            currentView = 'community'; // デフォルト
+        }
+    }
+
+    // ビュー切り替え関数 (ボタンクリック時とクエリパラメータ変更時の両方に対応)
+    function switchView(mode: 'community' | 'item') {
+        // currentView = mode; // 削除 (クエリパラメータで制御するため)
+        
+        // ★変更点: URLにクエリパラメータを付与して遷移する
+        goto(`/government/requestlist?viewMode=${mode}`, { replaceState: true });
+    }
 
     // 並び替え用の状態管理変数
     let sortKey: string = 'pending'; // 初期値: 未対応数
@@ -204,7 +222,7 @@
         <button 
             class="switch-btn" 
             class:active={currentView === 'community'} 
-            on:click={() => { currentView = 'community'; sortKey = 'pending'; sortDesc = true; }}
+            on:click={() => switchView('community')}
         >
             <img src={communityIcon} alt="コミュニティ" class="btn-icon" />
             コミュニティ別リスト
@@ -213,7 +231,7 @@
         <button 
             class="switch-btn" 
             class:active={currentView === 'item'} 
-            on:click={() => { currentView = 'item'; sortKey = 'pending'; sortDesc = true; }}
+            on:click={() => switchView('item')}
         >
             <img src={itemIcon} alt="品目" class="btn-icon" />
             品目別集計
