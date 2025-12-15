@@ -48,7 +48,7 @@
 
 <style>
 	.card {
-		background-color: var(--card-high);
+		background-color: var(--bg);
 		border: 1px solid var(--outline-sub);
 		border-radius: 8px;
 		padding: 16px;
@@ -61,13 +61,13 @@
 		justify-content: center;
 		position: relative;
 		color: var(--text);
+		box-shadow: 0 2px 8px color-mix(in srgb, var(--primary), transparent 80%);
 	}
 
 	/* --- 通常時のスタイル（選択中） --- */
 	.card.selected {
 		border-color: var(--primary);
 		background-color: var(--primary-container);
-		box-shadow: 0 2px 8px color-mix(in srgb, var(--primary), transparent 80%);
 	}
 
 	/* --- 追加ボタンモードのスタイル --- */
@@ -128,7 +128,7 @@
 		font-size: 1rem;
 		padding: 8px;
 		border-radius: 4px;
-		border: 1px solid var(--outline);
+		border: 1px solid var(--primary);
 		background-color: var(--bg);
 		color: var(--text);
 		width: 100%;

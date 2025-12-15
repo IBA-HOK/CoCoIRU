@@ -17,18 +17,21 @@
 		goto('/community/request/confirm');
 	}
 </script>
-<Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。"/>
+
+<Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。" />
 <div class="container">
 	<!-- 申請品目選択カード -->
-	<Surface class="main-content">
-		<h2 class="section-title">品目を選択</h2>
-		<RequestItemGrid on:addClick={() => (showModal = true)} />
-	</Surface>
+	<div class="main-content">
+		<Surface>
+			<h2 class="section-title">品目を選択</h2>
+			<RequestItemGrid on:addClick={() => (showModal = true)} />
+		</Surface>
+	</div>
 
 	<!-- 選択済み申請品目サイドバー -->
-	<aside class="sidebar sticky-sidebar">
-		<!-- サイドバータイトル -->
-		<Surface class="sidebar-surface">
+	<div class="sidebar-content">
+		<Surface>
+			<!-- サイドバータイトル -->
 			<div class="sidebar-header">
 				<h2 class="section-title">選択済み</h2>
 				{#if selectedItems.length > 0}
@@ -59,7 +62,7 @@
 				</div>
 			</div>
 		</Surface>
-	</aside>
+	</div>
 </div>
 
 <!-- 品目追加モーダル -->
@@ -71,9 +74,10 @@
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
+		padding-bottom: 20px;
 	}
 
-	:global(.main-content) {
+	.main-content {
 		flex: 1;
 		min-width: 0;
 	}
@@ -85,16 +89,9 @@
 		font-weight: 500;
 	}
 
-	.sidebar {
-		width: 480px;
+	.sidebar-content {
+		min-width: 30%;
 		flex-shrink: 0;
-	}
-
-	.sticky-sidebar {
-		position: sticky;
-		top: 24px;
-		max-height: calc(100vh - 48px);
-		overflow-y: auto;
 	}
 
 	.sidebar-header {
@@ -151,17 +148,12 @@
 		.container {
 			flex-direction: column;
 			text-align: center;
-      align-items: stretch;
+			align-items: stretch;
 		}
-		.sidebar {
+
+		.sidebar-content {
 			width: 100%;
-			position: static;
+			height: auto;
 		}
-    .sticky-sidebar {
-      max-height: none;
-    }
-    :global(.sidebar-surface) {
-      height: auto;
-    }
 	}
 </style>
