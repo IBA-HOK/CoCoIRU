@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { Button, Surface, Title } from '$lib';
 	import { requestItems } from '$lib/features/request/requestItems';
@@ -12,10 +13,41 @@
 	$: totalSelected = $requestItems.reduce((sum, item) => sum + item.value, 0);
 	let showModal = false;
 	let notes = '';
+	// サイドバーのDOM要素を格納する変数
+	let sidebarElement: HTMLElement;
+	let showMobileButton = true;
 
 	function confirmButtonClick() {
 		goto('/community/request/confirm');
 	}
+	// サイドバーへスムーズスクロールする関数
+	function scrollToSidebar() {
+		if (sidebarElement) {
+			sidebarElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}
+
+	// サイドバーが見えているかどうかを監視する
+	onMount(() => {
+		if (!sidebarElement) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const entry = entries[0];
+				showMobileButton = !entry.isIntersecting;
+			},
+			{
+				root: null,
+				threshold: 0.1
+			}
+		);
+
+		observer.observe(sidebarElement);
+
+		return () => {
+			observer.disconnect();
+		};
+	});
 </script>
 
 <Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。" />
@@ -29,7 +61,7 @@
 	</div>
 
 	<!-- 選択済み申請品目サイドバー -->
-	<div class="sidebar-content">
+	<div class="sidebar-content" bind:this={sidebarElement}>
 		<Surface>
 			<!-- サイドバータイトル -->
 			<div class="sidebar-header">
@@ -58,15 +90,20 @@
 					<strong>{totalSelected} 個</strong>
 				</div>
 				<div class="action-button">
-					<Button text="申請する" on:click={confirmButtonClick} />
+					<Button text="申請する" variant="accent" on:click={confirmButtonClick} />
 				</div>
 			</div>
 		</Surface>
 	</div>
 </div>
 
+<!-- モバイル用：サイドバーへスクロールするボタン -->
+<div class="mobile-action-bar {showMobileButton ? '' : 'hidden'}">
+	<Button text="確認 ▼" on:click={scrollToSidebar} />
+</div>
+
 <!-- 品目追加モーダル -->
-<AddRequestItemModal bind:show={showModal} />
+<!-- <AddRequestItemModal bind:show={showModal} /> -->
 
 <style>
 	.container {
@@ -143,17 +180,53 @@
 		font-size: 0.9rem;
 	}
 
+	.mobile-action-bar {
+		display: none; /* PCでは非表示 */
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		box-sizing: border-box;
+		z-index: 100;
+		padding: 16px 48px;
+		background-color: color-mix(in srgb, var(--bg), transparent 80%);
+
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
+		border-top: 1px solid var(--outline-sub);
+		box-shadow: 0 -2px 10px color-mix(in srgb, var(--primary), transparent 80%);
+
+		transition:
+			transform 0.3s ease,
+			opacity 0.3s ease;
+		transform: translateY(0);
+		opacity: 1;
+	}
+
 	/* レスポンシブ対応: スマホでは縦並び(要修正) */
 	@media (max-width: 768px) {
 		.container {
 			flex-direction: column;
 			text-align: center;
 			align-items: stretch;
+			padding-bottom: 80px;
 		}
 
 		.sidebar-content {
 			width: 100%;
 			height: auto;
+			scroll-margin-top: 20px;
+		}
+
+		.mobile-action-bar {
+			display: flex;
+			justify-content: center;
+		}
+
+		.mobile-action-bar.hidden {
+			transform: translateY(100%); /* 下にスライドさせて隠す */
+			opacity: 0;
+			pointer-events: none; /* クリックできないようにする */
 		}
 	}
 </style>
