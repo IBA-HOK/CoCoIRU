@@ -159,3 +159,12 @@ class TokenResponse(BaseModel):
     token_type: str
     expires_in: int
     role: str  # "community" または "gov"
+
+class ValidationRequest(BaseModel):
+    user_type: str  # "community" または "gov"
+    username: Optional[str] = None  # gov用
+    community_id: Optional[int] = None  # community用
+    password: str
+
+class ValidationResponse(BaseModel):
+    valid: bool
