@@ -24,6 +24,7 @@
 
 <Title titleText="申請物品項目 追加申請" />
 
+<div class="container">
 <Surface>
   <div class="form">
     <label for="itemName">物品名（必須）</label>
@@ -44,18 +45,31 @@
     {/if}
   </div>
 </Surface>
+</div>
 
 <style>
   .form {
+    margin: 0 auto;
     max-width: 640px;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
   input, textarea {
-    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
     font-size: 1rem;
-  }
+
+    background-color: var(--bg);        /* ★ 完全に同じ白 */
+    border: 1px solid var(--outline);       /* ★ 同じ枠色 */
+    border-radius: 8px;             /* ★ RequestNoteInput と同じ角丸 */
+
+    outline: none;
+    box-shadow: none;
+    font-family: inherit;
+    color: var(--text);
+  }  
   .btn-area {
     margin-top: 8px;
   }
@@ -63,4 +77,24 @@
     margin-top: 12px;
     color: #2e7d32;
   }
+
+  .container {
+  max-width: 720px; /* ← 好きな幅 */
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* CoCoIRU フォーム統一ルール */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  border-width: 2px;              /* ★ 太くする */
+  background-color: var(--bg);
+  outline: none;
+  box-shadow: none;
+}
+
+
+
 </style>

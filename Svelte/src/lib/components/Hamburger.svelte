@@ -123,12 +123,15 @@
     /* テーマカラー適用 */
     background: var(--bg);
     color: var(--text);
-    box-shadow: 4px 0 10px var(--shadow);
+    
     
     transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
     padding-top: 80px; /* アイコンとかぶらないように余白 */
     box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
   }
 
   .menu.open {

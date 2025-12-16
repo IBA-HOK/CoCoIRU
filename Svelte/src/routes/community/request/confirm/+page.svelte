@@ -141,7 +141,7 @@
 			</div>
 		</section>
 
-		<section class="section-card">
+		<section class="section-bg">
 			<RequestNoteInput />
 		</section>
 
@@ -224,4 +224,5 @@
 		flex: 1;
 		max-width: 200px;
 	}
+
 </style>
