@@ -1,5 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { invalidateAll } from '$app/navigation';
+    import { getToken } from '$lib/stores/auth';
 
     // ------------------------------------
     // 型定義 (共通)
@@ -7,6 +9,7 @@
     interface RequestItem {
         request_id: number;
         community_id: number;
+        request_content_id: number;
         community_name: string | null;
         item_name: string | null;
         number: number | null;
@@ -87,8 +90,61 @@
         }
     }
 
-    function handleAction(req: RequestItem) {
-        alert(`要請 #${req.request_id} の対応を開始しますか？\n(機能は未実装です)`);
+    const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+
+    async function handleAction(req: RequestItem) {
+        if (!confirm(`要請 #${req.request_id} の対応を開始しますか？`)) return;
+
+        try {
+            // ステータスを 'processing' (対応中) に変更するデータを作成
+            const updateData = {
+                community_id: req.community_id,
+                request_content_id: req.request_content_id, // ここで必要になります
+                status: 'processing', // ステータス変更
+                created_at: req.created_at // 日時はそのまま維持
+            };
+
+            // 既存の PUT API を呼び出す
+            const token = getToken();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`${API_BASE_URL}/support_requests/${req.request_id}`, {
+                method: 'PUT',
+                credentials: 'include', // Cookie を送信する
+                headers,
+                body: JSON.stringify(updateData)
+            });
+
+            // デバッグ: 応答の JSON をログに出す（body は一度しか読めないので clone() を使う）
+            try {
+                const respJson = await response.clone().json();
+                console.log('handleAction response', response.status, respJson);
+            } catch (e) {
+                console.log('handleAction: response has no JSON body or failed to parse', e);
+            }
+
+            if (!response.ok) {
+                let errorData: any = null;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    console.error('Failed to parse error response JSON', e);
+                }
+                alert(`エラー: ${errorData?.detail || '更新に失敗しました'}`);
+                return;
+            }
+
+            // 成功したら画面をリロードせずにデータを最新化
+            // (SvelteKitの機能でload関数を再実行させる)
+            await invalidateAll();
+            
+            alert('対応ステータスを「対応中」に更新しました！');
+
+        } catch (error) {
+            console.error('Update error:', error);
+            alert('通信エラーが発生しました');
+        }
     }
 
     function handleCommunityClick(communityId: number) {
@@ -174,11 +230,11 @@
                 {#if viewMode === 'community'}
                     <td class="action-col">
                         <button 
-                            class="action-btn" 
+                            class="action-btn process-btn" 
                             disabled={req.status !== 'pending'}
-                            on:click={() => handleAction(req)}
+                            on:click={() => handleAction(req)} 
                         >
-                            {getStatusLabel(req.status)}
+                            対応 ({req.status === 'pending' ? '未' : '済'})
                         </button>
                     </td>
                 {/if}

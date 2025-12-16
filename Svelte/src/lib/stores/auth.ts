@@ -42,3 +42,25 @@ function govLogout() {
 }
 
 export { communityId, isLoggedIn, login, logout, govLoggedIn, govUser, govLogin, govLogout };
+
+// -----------------------------
+// Token helpers (development fallback)
+// -----------------------------
+export const authToken = writable<string | null>(typeof window !== 'undefined' ? (localStorage.getItem('access_token')) : null);
+
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('access_token');
+}
+
+export function setToken(token: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('access_token', token);
+  authToken.set(token);
+}
+
+export function clearToken() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('access_token');
+  authToken.set(null);
+}

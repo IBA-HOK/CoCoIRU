@@ -20,6 +20,9 @@
     $: requests = data.requests || [];
     $: specialNotes = data.specialNotes;
 
+    // DEBUG: Check what community object contains
+    $: console.log('DEBUG community:', community);
+
 </script>
 
 <div class="detail-container">
@@ -27,8 +30,7 @@
     <!-- <a href="/government/requestlist" class="back-link">← 一覧に戻る</a> -->
 
     <header>
-        <h1>要請詳細</h1>
-        <!-- <h1>{community.name} の要請詳細</h1> -->
+        <h1>{community.name} の要請詳細</h1>
         <!-- <pre>{JSON.stringify(community, null, 2)}</pre> -->
         <div class="info-bar">
             <span><strong>避難人数:</strong> {typeof community.member_count === 'number' ? `${community.member_count} 人` : '—'}</span>
