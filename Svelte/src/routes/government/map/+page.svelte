@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  	import { page } from '$app/stores';
 	
 	// --- コンポーネントのインポート (dev4の構造を採用) ---
 	import Title from '$lib/components/Title.svelte';
