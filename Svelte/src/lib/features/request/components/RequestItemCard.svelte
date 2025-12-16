@@ -150,4 +150,11 @@
 	.selected .unit {
 		color: var(--on-primary-container);
 	}
+
+	@media (max-width: 768px) {
+		.card {
+			min-height: 100px;
+			padding: 12px;
+		}
+	}
 </style>
