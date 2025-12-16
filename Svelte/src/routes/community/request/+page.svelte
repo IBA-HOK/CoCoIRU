@@ -11,11 +11,15 @@
 	$: selectedItems = $requestItems.filter((item) => item.value > 0);
 	$: totalSelected = $requestItems.reduce((sum, item) => sum + item.value, 0);
 	let showModal = false;
-	let notes = '';
+	//let notes: string = '';
 
 	function confirmButtonClick() {
 		goto('/community/request/confirm');
 	}
+	function goAddItemRequest() {
+  		goto('/community/addItemRequest');
+	}
+
 </script>
 
 <Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。" />
@@ -34,9 +38,14 @@
 			<!-- サイドバータイトル -->
 			<div class="sidebar-header">
 				<h2 class="section-title">選択済み</h2>
-				{#if selectedItems.length > 0}
-					<span class="badge">{selectedItems.length}件</span>
-				{/if}
+
+				<div class="header-actions">
+    				<Button text="品目追加申請" variant="secondary" on:click={goAddItemRequest} />
+
+					{#if selectedItems.length > 0}
+						<span class="badge">{selectedItems.length}件</span>
+					{/if}
+				</div>
 			</div>
 
 			<!-- 選択済み品目一覧 -->
@@ -48,8 +57,9 @@
 				{/if}
 			</div>
 
-			<!-- 特記事項入力欄 -->
-			<RequestNoteInput bind:value={notes} />
+			<!-- 特記事項入力欄 --
+			<!<RequestNoteInput bind:value={notes} /> -->
+			<RequestNoteInput />
 
 			<!-- 合計数量と確定ボタン -->
 			<div class="sidebar-footer">
@@ -156,4 +166,11 @@
 			height: auto;
 		}
 	}
+	.header-actions {
+  		display: flex;
+  		gap: 8px;
+  		align-items: center;
+	}	
+
+
 </style>
