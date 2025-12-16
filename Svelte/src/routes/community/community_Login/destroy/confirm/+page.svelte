@@ -4,18 +4,75 @@
 
   let id = '';
   let password = '';
+  let error = '';
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
   onMount(() => {
     try { id = sessionStorage.getItem('selectedCommunityId') || ''; } catch (e) {}
   });
 
-  function destroy() {
-    // UI-only: clear selectedCommunityId and mark destroyed
+  async function destroy() {
+    error = '';
+    // 1) validate credentials via API
     try {
-      sessionStorage.removeItem('selectedCommunityId');
-      sessionStorage.setItem('lastDestroyedCommunity', id);
-    } catch (e) {}
-    goto('/community/community_Login/destroy/complete');
+      const payload = {
+        user_type: 'community',
+        community_id: Number(id),
+        password
+      };
+
+      const vres = await fetch(`${API_BASE}/api/v1/validate/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!vres.ok) {
+        const d = await vres.json().catch(() => ({}));
+        throw new Error(d.detail || `Validation failed (${vres.status})`);
+      }
+
+      const vdata = await vres.json();
+      if (!vdata.valid) {
+        throw new Error('IDまたはパスワードが正しくありません');
+      }
+
+      // 2) login to get HttpOnly cookie (server sets cookie). include credentials.
+      const loginPayload = { user_type: 'community', community_id: Number(id), password };
+      const lres = await fetch(`${API_BASE}/api/v1/login/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(loginPayload)
+      });
+
+      if (!lres.ok) {
+        const d = await lres.json().catch(() => ({}));
+        throw new Error(d.detail || `Login failed (${lres.status})`);
+      }
+
+      // 3) call delete endpoint with credentials included so server sees the cookie
+      const dres = await fetch(`${API_BASE}/api/v1/communities/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!dres.ok) {
+        const d = await dres.json().catch(() => ({}));
+        throw new Error(d.detail || `Delete failed (${dres.status})`);
+      }
+
+      // success: clear client storage and navigate
+      try {
+        sessionStorage.removeItem('selectedCommunityId');
+        sessionStorage.setItem('lastDestroyedCommunity', id);
+      } catch (e) {}
+
+      goto('/community/community_Login/destroy/complete');
+    } catch (e) {
+      console.error(e);
+      error = e instanceof Error ? e.message : '破棄に失敗しました';
+    }
   }
 </script>
 
@@ -25,13 +82,17 @@
     <p>本当に破棄しますか？この操作は取り消せません。</p>
 
     <label>コミュニティパスワード
-      <input type="password" bind:value={password} placeholder="パスワードを入力" />
+        <input type="password" bind:value={password} placeholder="パスワードを入力" />
     </label>
 
-    <div class="actions">
-      <button class="btn" on:click={() => goto('/community/community_Login/account')}>戻る</button>
-      <button class="btn danger" on:click={destroy} disabled={!password}>破棄する</button>
-    </div>
+      {#if error}
+        <div class="error">{error}</div>
+      {/if}
+
+      <div class="actions">
+        <button class="btn" on:click={() => goto('/community/community_Login/account')}>戻る</button>
+        <button class="btn danger" on:click={destroy} disabled={!password}>破棄する</button>
+      </div>
   </section>
 </main>
 
@@ -42,4 +103,5 @@
   .actions { display:flex; gap:0.75rem; margin-top:1rem }
   .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid var(--outline); background: var(--card-high); color: var(--text); cursor:pointer }
   .btn.danger { background: var(--error); color: var(--on-error) }
+  .error { color: var(--error); margin-top:0.5rem }
 </style>
