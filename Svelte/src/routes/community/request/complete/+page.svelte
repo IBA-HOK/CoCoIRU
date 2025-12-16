@@ -7,7 +7,7 @@
     goto('/community');
   }
   function loginButtonClick() {
-    goto('/login');
+    goto('/community/community_Login/login');
   }
 </script>
 
