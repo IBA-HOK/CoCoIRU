@@ -60,10 +60,6 @@
       </div>
     </label>
 
-    <label>パスワード (更新用)
-      <input type="password" bind:value={password} placeholder="コミュニティのパスワード" />
-    </label>
-
     <div class="actions">
       <button class="btn" on:click={back}>戻る</button>
       <button class="btn primary" on:click={toConfirm} disabled={!name.trim()}>確認へ</button>

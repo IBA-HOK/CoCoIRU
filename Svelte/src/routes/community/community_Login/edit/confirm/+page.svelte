@@ -62,7 +62,6 @@
     <p><strong>コミュニティID:</strong> {draft.communityId}</p>
     <p><strong>コミュニティ名:</strong> {draft.name}</p>
     <p><strong>人数:</strong> {draft.count}</p>
-    <p><strong>更新用パスワード:</strong> {draft.password ? '●'.repeat(Math.max(3, String(draft.password).length)) : '—'}</p>
 
     {#if error}
       <div class="result error">
