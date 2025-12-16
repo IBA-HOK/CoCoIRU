@@ -66,9 +66,9 @@
 			<!-- サイドバータイトル -->
 			<div class="sidebar-header">
 				<h2 class="section-title">選択済み</h2>
-				{#if selectedItems.length > 0}
-					<span class="badge">{selectedItems.length}件</span>
-				{/if}
+					{#if selectedItems.length > 0}
+						<span class="badge">{selectedItems.length}件</span>
+					{/if}
 			</div>
 
 			<!-- 選択済み品目一覧 -->
@@ -80,8 +80,9 @@
 				{/if}
 			</div>
 
-			<!-- 特記事項入力欄 -->
-			<RequestNoteInput bind:value={notes} />
+			<!-- 特記事項入力欄 --
+			<!<RequestNoteInput bind:value={notes} /> -->
+			<RequestNoteInput />
 
 			<!-- 合計数量と確定ボタン -->
 			<div class="sidebar-footer">
