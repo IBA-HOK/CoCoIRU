@@ -3,20 +3,36 @@ import { error } from '@sveltejs/kit';
 
 const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-export const load: PageServerLoad = async ({ params, fetch }) => {
+export const load: PageServerLoad = async ({ params, fetch, cookies }) => {
     // URLパラメータからIDを取得
     const communityId = Number(params.communityId);
 
     try {
+        // トークンを取得
+        const accessToken = cookies.get('access_token');
+        
+        if (!accessToken) {
+            throw error(401, '認証トークンが見つかりません');
+        }
+
+        // リクエストヘッダーにトークンを含める
+        const headers = {
+            'Authorization': `Bearer ${accessToken}`
+        };
+
         // 1. コミュニティ基本情報の取得 (ヘッダー表示用)
-        const communityRes = await fetch(`${API_BASE_URL}/communities/${communityId}`);
+        const communityRes = await fetch(`${API_BASE_URL}/communities/${communityId}`, {
+            headers
+        });
         
         if (communityRes.status === 404) {
             throw error(404, 'コミュニティが見つかりません');
         }
         
         // 2. 行政用要請一覧APIから全データを取得 (詳細情報付き)
-        const requestsRes = await fetch(`${API_BASE_URL}/government/requests`);
+        const requestsRes = await fetch(`${API_BASE_URL}/government/requests`, {
+            headers
+        });
         
         if (!requestsRes.ok) {
             throw error(requestsRes.status, '要請データの取得に失敗しました');
@@ -26,7 +42,6 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
         const allRequests = await requestsRes.json();
 
         // 3. このコミュニティの要請だけをフィルタリング
-        // (API側でフィルタリング機能を作っていないため、フロントサーバー側で行う)
         const filteredRequests = allRequests.filter((req: any) => req.community_id === communityId);
 
         // 特記事項 (Special Notes) の取得
@@ -36,21 +51,25 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
         if (community.member_id) {
             try {
                 // Memberを取得
-                const memberRes = await fetch(`${API_BASE_URL}/members/${community.member_id}`);
+                const memberRes = await fetch(`${API_BASE_URL}/members/${community.member_id}`, {
+                    headers
+                });
                 if (memberRes.ok) {
                     const member = await memberRes.json();
                     
                     // SpecialNotesを取得
                     if (member.special_notes_id) {
-                        const notesRes = await fetch(`${API_BASE_URL}/special_notes/${member.special_notes_id}`);
+                        const notesRes = await fetch(`${API_BASE_URL}/special_notes/${member.special_notes_id}`, {
+                            headers
+                        });
                         if (notesRes.ok) {
                             const notesData = await notesRes.json();
                             // JSON文字列の場合はパースし、そうでなければそのまま使う
                             try {
                                 const parsed = JSON.parse(notesData.notes_content_json);
-                                specialNotes = parsed.text || parsed; // {text: "..."} 形式なら text を使う
+                                specialNotes = parsed.text || parsed;
                             } catch {
-                                specialNotes = notesData.notes_content_json; // パースできない場合は文字列そのまま
+                                specialNotes = notesData.notes_content_json;
                             }
                         }
                     }
