@@ -48,6 +48,29 @@
 			observer.disconnect();
 		};
 	});
+
+	// ページ表示時にヘッダーの onHomeClick と同等のリセット処理を行う
+	onMount(() => {
+		try {
+			// 既存の申請入力保存キーを消す
+			sessionStorage.removeItem('applicationForm');
+			sessionStorage.removeItem('applicationFormData');
+
+			// リセットフラグ（タイムスタンプ）を入れてイベントを発火
+			const ts = Date.now().toString();
+			sessionStorage.setItem('resetApplicationForm', ts);
+			window.dispatchEvent(new CustomEvent('resetApplicationForm', { detail: { ts } }));
+		} catch (err) {
+			window.dispatchEvent(new CustomEvent('resetApplicationForm'));
+		}
+
+		// requestItems の数量をリセットする
+		try {
+			requestItems.update((items) => items.map((it) => ({ ...it, value: 0 })));
+		} catch (e) {
+			console.error('failed to reset requestItems', e);
+		}
+	});
 </script>
 
 <Title titleText="支援物資の申請" subtitleText="品目を選択し、「申請する」を押してください。" />
