@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { Title, Button } from '$lib';
+	import LoginForm from '$lib/features/community/LoginForm.svelte';
+	import LogonForm from '$lib/features/community/LogonForm.svelte';
+
+	let state = "none";
 
 	function OnLoginButtonClick() {
-		goto('/community/community_Login/login');
+		state = "login";
 	}
 	function OnCreateButtonClick() {
-		goto('/community/community_Login/form');
+		state = "create";
 	}
 </script>
 
@@ -15,14 +19,20 @@
 	subtitleText="コミュニティを作成し、支援物資の申請を行うことができます。"
 />
 
-<div class="btn-container">
-	<div class="btn-area">
-		<Button text="コミュニティにログイン" variant="primary" on:click={OnLoginButtonClick} />
-	</div>
-	<div class="btn-area">
-		<Button text="コミュニティを新規作成" variant="secondary" on:click={OnCreateButtonClick} />
-	</div>
-</div>
+{#if state === "none"}
+  <div class="btn-container">
+    <div class="btn-area">
+      <Button text="コミュニティにログイン" variant="primary" on:click={OnLoginButtonClick} />
+    </div>
+    <div class="btn-area">
+      <Button text="コミュニティを新規作成" variant="secondary" on:click={OnCreateButtonClick} />
+    </div>
+  </div>
+{:else if state === "login"}
+  <LoginForm on:back={() => (state = 'none')}/>
+{:else if state === "create"}
+	<LogonForm on:back={() => (state = 'none')} />
+{/if}
 
 <style>
 	.btn-container {
