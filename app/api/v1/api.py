@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     public_items,
     validate
 )
+from app.api.v1.endpoints import item_addition_requests
 
 api_router = APIRouter()
 
@@ -48,3 +49,6 @@ api_router.include_router(public_items.router, prefix="/public", tags=["Public"]
 
 # 14. Validation
 api_router.include_router(validate.router, prefix="/validate", tags=["Validation"])
+
+# 15. Item Addition Requests
+api_router.include_router(item_addition_requests.router, prefix="/item_addition_requests", tags=["Item Addition Requests"])

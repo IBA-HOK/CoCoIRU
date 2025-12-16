@@ -39,17 +39,20 @@
 		border: 1px solid var(--outline);
 
 		resize: none;
-		transition: all 0.2s ease;
+		
 		outline: none;
 		font-family: inherit;
 		color: var(--text);
 	}
 
-	textarea:focus {
-		background-color: var(--card);
-		border-color: var(--primary);
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary), transparent 85%);
+	textarea:focus,
+	textarea:focus-visible {
+		border-width: 2px; 
+  		background-color: var(--bg);
+  		box-shadow: none;
+  		outline: none;
 	}
+
 
 	textarea::placeholder {
 		color: var(--text-sub);

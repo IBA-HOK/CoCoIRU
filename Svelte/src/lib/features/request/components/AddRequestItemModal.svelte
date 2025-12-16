@@ -38,6 +38,7 @@
 		if (newItemName.trim() !== '') {
 			requestItems.update((currentItems) => {
 				const newItem = {
+					id: Date.now(),
 					text: newItemName.trim(),
 					value: newItemValue
 				};
