@@ -15,7 +15,7 @@
       sessionStorage.removeItem('selectedCommunityId');
       sessionStorage.setItem('lastDestroyedCommunity', id);
     } catch (e) {}
-    goto('/community/destroy/complete');
+    goto('/community/community_Login/destroy/complete');
   }
 </script>
 
@@ -29,7 +29,7 @@
     </label>
 
     <div class="actions">
-      <button class="btn" on:click={() => goto('/community/account')}>戻る</button>
+      <button class="btn" on:click={() => goto('/community/community_Login/account')}>戻る</button>
       <button class="btn danger" on:click={destroy} disabled={!password}>破棄する</button>
     </div>
   </section>

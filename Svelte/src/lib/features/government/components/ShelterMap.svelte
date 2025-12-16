@@ -37,14 +37,9 @@
 <style>
   .map-wrapper {
     flex: 1;
-    /* 枠線: Outline */
     border: 1px solid var(--outline);
     border-radius: 8px;
     overflow: hidden;
-    /* 背景色も指定しておくと安心 */
-    background-color: var(--card-low);
-    
-    /* MapComponentをフルサイズにする */
     display: flex;
     flex-direction: column;
   }

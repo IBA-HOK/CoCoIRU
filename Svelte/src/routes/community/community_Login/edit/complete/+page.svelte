@@ -11,7 +11,7 @@
     } catch (e) {}
   });
 
-  function toCommunity() { goto('/community/account'); }
+  function toCommunity() { goto('/community/community_Login/account'); }
 </script>
 
 <main style="text-align:center; padding:1rem">
