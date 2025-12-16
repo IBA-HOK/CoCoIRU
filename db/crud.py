@@ -344,6 +344,42 @@ def delete_support_request(db: Session, request_id: int):
     return db_item
 
 
+# --- 新規: ItemAdditionRequests (物品追加申請) ---
+def get_item_addition_request(db: Session, add_req_id: int):
+    return db.query(models.ItemAdditionRequests).filter(models.ItemAdditionRequests.add_req_id == add_req_id).first()
+
+
+def get_item_addition_requests(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.ItemAdditionRequests).offset(skip).limit(limit).all()
+
+
+def create_item_addition_request(db: Session, item_req: schemas.ItemAdditionRequestsCreate):
+    db_item_req = models.ItemAdditionRequests(**item_req.model_dump())
+    # timestamp はスキーマから受け取る想定。created_atヘルパーは該当しないためここではそのまま使用。
+    db.add(db_item_req)
+    db.commit()
+    db.refresh(db_item_req)
+    return db_item_req
+
+
+def update_item_addition_request(db: Session, add_req_id: int, item_req_update: schemas.ItemAdditionRequestsCreate):
+    db_item = get_item_addition_request(db, add_req_id)
+    db_item = update_db_item(db_item, item_req_update)
+    if db_item:
+        _apply_update_timestamps(db_item)
+        db.commit()
+        db.refresh(db_item)
+    return db_item
+
+
+def delete_item_addition_request(db: Session, add_req_id: int):
+    db_item = get_item_addition_request(db, add_req_id)
+    if db_item:
+        db.delete(db_item)
+        db.commit()
+    return db_item
+
+
 # --- 9. Credential ---
 
 def create_credential(db: Session, credential: schemas.CredentialCreate):
