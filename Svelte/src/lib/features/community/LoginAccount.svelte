@@ -86,7 +86,7 @@
 	}
 
 	function toEdit() {
-		goto('/community/community_Login/edit');
+		dispatch('edit');
 	}
 	function toDestroy() {
 		dispatch('destroy');
@@ -95,7 +95,7 @@
 		goto('/community/nearby');
 	}
 	function toRequest() {
-		dispatch('request');
+		goto('/community/request');
 	}
 	function doLogout() {
 		if (!confirm('ログアウトしますか？')) return;
