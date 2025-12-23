@@ -4,6 +4,9 @@
 	import LoginForm from '$lib/features/community/LoginForm.svelte';
 	import LogonForm from '$lib/features/community/LogonForm.svelte';
 	import LoginConfirm from '$lib/features/community/LoginConfirm.svelte';
+	import LoginAccount from '$lib/features/community/LoginAccount.svelte';
+  import ComDestroy from '$lib/features/community/ComDestroy.svelte';
+  import ComEdit from '$lib/features/community/ComEdit.svelte';
 
 	let state = "none";
 
@@ -12,6 +15,9 @@
 	}
 	function OnCreateButtonClick() {
 		state = "create";
+	}
+	function OnAccountButtonClick() {
+		state = "account";
 	}
 </script>
 
@@ -33,11 +39,27 @@
   <LoginForm on:back={() => (state = 'none')}/>
 {:else if state === "create"}
 	<LogonForm 
-      on:back={() => (state = 'none')} 
-      on:confirm={() => (state = 'confirm')} 
-  	/>
+    on:back={() => (state = 'none')} 
+    on:confirm={() => (state = 'confirm')} 
+  />
 {:else if state === "confirm"}
-  	<LoginConfirm on:back={() => (state = 'none')} />
+  <LoginConfirm
+    on:back={() => (state = 'none')}
+    on:complete={() => (state = 'account')}
+	/>
+{:else if state === "account"}
+  <LoginAccount 
+    on:request={() => (state = 'request')}
+    on:destroy={() => (state = 'destroy')}
+    on:edit={() => (state = 'edit')}
+  />
+{:else if state === "destroy"}
+  <ComDestroy
+    on:back={() => (state = 'account')}
+    on:complete={() => (state = 'none')}
+  />
+  {:else if state === "edit"}
+    <ComEdit on:back={() => (state = 'account')} />
 {/if}
 
 <style>

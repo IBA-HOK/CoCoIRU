@@ -1,14 +1,21 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import { goto } from '$app/navigation';
+  import { Button } from '$lib';
 
   let id = '';
   let password = '';
   let error = '';
+  let isComplete = false; 
   const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+  const dispatch = createEventDispatcher();
+  
 
   onMount(() => {
-    try { id = sessionStorage.getItem('selectedCommunityId') || ''; } catch (e) {}
+    try {
+      id = sessionStorage.getItem('selectedCommunityId') || '';
+
+    } catch (e) {}
   });
 
   async function destroy() {
@@ -38,28 +45,22 @@
       }
 
       // 2) login to get HttpOnly cookie (server sets cookie). include credentials.
-      const loginPayload = { user_type: 'community', community_id: Number(id), password };
-      const lres = await fetch(`${API_BASE}/api/v1/login/login`, {
+      await fetch(`${API_BASE}/api/v1/login/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(loginPayload)
+        body: JSON.stringify(payload)
       });
 
-      if (!lres.ok) {
-        const d = await lres.json().catch(() => ({}));
-        throw new Error(d.detail || `Login failed (${lres.status})`);
-      }
-
       // 3) call delete endpoint with credentials included so server sees the cookie
-      const dres = await fetch(`${API_BASE}/api/v1/communities/${id}`, {
+      const res = await fetch(`${API_BASE}/api/v1/communities/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
 
-      if (!dres.ok) {
-        const d = await dres.json().catch(() => ({}));
-        throw new Error(d.detail || `Delete failed (${dres.status})`);
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.detail || `Delete failed (${res.status})`);
       }
 
       // success: clear client storage and navigate
@@ -68,32 +69,55 @@
         sessionStorage.setItem('lastDestroyedCommunity', id);
       } catch (e) {}
 
-      goto('/community/community_Login/destroy/complete');
+      isComplete = true;
     } catch (e) {
       console.error(e);
       error = e instanceof Error ? e.message : '破棄に失敗しました';
     }
   }
+  
+  // キャンセル時の動作: 親コンポーネントに通知してアカウント画面に戻してもらう
+  function handleBack() {
+    dispatch('back');
+  }
+
+  // 完了後の動作: トップページへ戻る
+  function toTop() {
+    dispatch('none');
+  }
 </script>
 
 <main class="page" style="padding:1rem; display:flex; justify-content:center">
-  <section class="card" style="max-width:720px; width:100%">
-    <h2>コミュニティを破棄しますか？</h2>
-    <p>本当に破棄しますか？この操作は取り消せません。</p>
+  {#if !isComplete}
+    <section class="card" style="max-width:720px; width:100%">
+      <h2>コミュニティを破棄しますか？</h2>
+      <p>本当に破棄しますか？この操作は取り消せません。</p>
 
-    <label>コミュニティパスワード
+      <label>コミュニティパスワード
         <input type="password" bind:value={password} placeholder="パスワードを入力" />
-    </label>
+      </label>
 
-      {#if error}
-        <div class="error">{error}</div>
-      {/if}
+        {#if error}
+          <div class="error">{error}</div>
+        {/if}
 
-      <div class="actions">
-        <button class="btn" on:click={() => goto('/community/community_Login/account')}>戻る</button>
-        <button class="btn danger" on:click={destroy} disabled={!password}>破棄する</button>
+        <div class="actions">
+        <Button text="戻る" variant="secondary" on:click={handleBack} />
+        {#if password}
+          <Button text="破棄する" variant="primary" on:click={destroy} />
+        {/if}
+      </div>
+    </section>
+
+  {:else}
+    <section class="card" style="max-width:720px; width:100%; text-align:center;">
+      <h2>コミュニティを破棄しました</h2>
+      <p>コミュニティ <strong>{id}</strong> を破棄しました。</p>
+      <div class="actions" style="justify-content:center;">
+        <Button text="トップへ戻る" variant="primary" on:click={toTop} />
       </div>
   </section>
+  {/if}
 </main>
 
 <style>
