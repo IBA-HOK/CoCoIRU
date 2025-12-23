@@ -3,10 +3,13 @@
 	import { goto } from '$app/navigation';
 	import { Button, Surface, Title } from '$lib';
 	import { requestItems } from '$lib/features/request/requestItems';
+	import type { RequestItem } from '$lib/features/request/requestItems';
 	import RequestItemList from '$lib/features/request/components/RequestItemList.svelte';
 	import AddRequestItemModal from '$lib/features/request/components/AddRequestItemModal.svelte';
 	import RequestItemGrid from '$lib/features/request/components/RequestItemGrid.svelte';
 	import RequestNoteInput from '$lib/features/request/components/RequestNoteInput.svelte';
+	import { requestNote } from '$lib/features/request/requestNoteStore';
+	import { communityId } from '$lib/stores/auth';
 
 	// $: は、依存する変数(items)が変更されるたびに自動で再計算します
 	$: selectedItems = $requestItems.filter((item) => item.value > 0);
@@ -17,8 +20,102 @@
 	let sidebarElement: HTMLElement;
 	let showMobileButton = true;
 
+	// --- confirm modal (統合: /community/request/confirm の内容) ---
+	let isConfirmOpen = false;
+	const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+	let currentCommunityId: number | null = null;
+
+	// community_id を store から取得（数値でない場合は null）
+	$: currentCommunityId = null;
+	$: if (typeof $communityId !== 'undefined' && $communityId !== null) {
+		const s = String($communityId);
+		currentCommunityId = /^\d+$/.test(s) ? Number(s) : null;
+	}
+
+	function openConfirm() {
+		isConfirmOpen = true;
+	}
+
+	function closeConfirm() {
+		isConfirmOpen = false;
+		try {
+			sessionStorage.removeItem('openRequestConfirmModal');
+		} catch (e) {}
+	}
+
 	function confirmButtonClick() {
-		goto('/community/request/confirm');
+		openConfirm();
+	}
+
+	async function createOneRequest(item: RequestItem) {
+		const rcPayload = {
+			items_id: item.id,
+			number: item.value,
+			other_note: $requestNote
+		};
+
+		const rcRes = await fetch(`${API_BASE}/api/v1/request_content/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include',
+			body: JSON.stringify(rcPayload)
+		});
+
+		if (!rcRes.ok) {
+			console.error(await rcRes.text());
+			throw new Error('RequestContent 作成失敗');
+		}
+
+		const rcData = await rcRes.json();
+		const request_content_id = rcData.request_content_id;
+
+		if (!currentCommunityId) {
+			throw new Error('コミュニティIDが不正です。コミュニティにログインしてください。');
+		}
+		const srPayload = {
+			community_id: currentCommunityId,
+			request_content_id,
+			status: 'pending'
+		};
+
+		const srRes = await fetch(`${API_BASE}/api/v1/support_requests/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include',
+			body: JSON.stringify(srPayload)
+		});
+
+		if (!srRes.ok) {
+			console.error(await srRes.text());
+			throw new Error('SupportRequest 作成失敗');
+		}
+
+		return await srRes.json();
+	}
+
+	async function saveAllRequests() {
+		const results = [];
+		for (const item of selectedItems as RequestItem[]) {
+			const result = await createOneRequest(item);
+			results.push(result);
+		}
+		return results;
+	}
+
+	async function orderButtonClick() {
+		try {
+			const results = await saveAllRequests();
+			console.log('保存された申請:', results);
+			closeConfirm();
+			goto('/community/request/complete');
+		} catch (err) {
+			console.error(err);
+			alert('申請処理中にエラーが発生しました');
+		}
 	}
 	// サイドバーへスムーズスクロールする関数
 	function scrollToSidebar() {
@@ -70,6 +167,16 @@
 		} catch (e) {
 			console.error('failed to reset requestItems', e);
 		}
+	});
+
+	// /community/request/confirm からの遷移などで確認モーダルを開く
+	onMount(() => {
+		try {
+			if (sessionStorage.getItem('openRequestConfirmModal')) {
+				openConfirm();
+				sessionStorage.removeItem('openRequestConfirmModal');
+			}
+		} catch (e) {}
 	});
 </script>
 
@@ -128,6 +235,43 @@
 
 <!-- 品目追加モーダル -->
 <!-- <AddRequestItemModal bind:show={showModal} /> -->
+
+{#if isConfirmOpen}
+	<div class="modal" role="dialog" aria-modal="true" on:click={closeConfirm}>
+		<div class="modal-content" on:click|stopPropagation>
+			<button class="close" type="button" aria-label="閉じる" on:click={closeConfirm}>&times;</button>
+
+			<div class="confirm-container">
+				<Surface class="confirm-card">
+					<div class="header-area">
+						<h1 class="page-title">申請内容の確認</h1>
+						<p class="page-subtitle">以下の内容で申請します。漏れがないかご確認ください。</p>
+					</div>
+
+					<section class="section-card flex-grow-card">
+						<h2 class="section-title">申請品目</h2>
+						<div class="list-wrapper">
+							<RequestItemList items={selectedItems} />
+						</div>
+					</section>
+
+					<section class="section-card">
+						<RequestNoteInput />
+					</section>
+
+					<div class="request_footer">
+						<div class="btn-area">
+							<Button text="戻る" variant="secondary" on:click={closeConfirm} />
+						</div>
+						<div class="btn-area">
+							<Button text="申請" variant="accent" on:click={orderButtonClick} />
+						</div>
+					</div>
+				</Surface>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.container {
@@ -252,5 +396,104 @@
 			opacity: 0;
 			pointer-events: none; /* クリックできないようにする */
 		}
+	}
+
+	/* confirm modal (request/confirm 統合) */
+	.modal {
+		position: fixed;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		background: color-mix(in srgb, var(--shadow), transparent 60%);
+		z-index: 1000;
+	}
+
+	.modal-content {
+		position: relative;
+		width: min(900px, 100%);
+		max-height: calc(100vh - 32px);
+		overflow: auto;
+		background: var(--bg);
+		border: 1px solid var(--outline-sub);
+		border-radius: 12px;
+		padding: 16px;
+		box-shadow: 0 8px 24px var(--shadow);
+	}
+
+	.close {
+		position: absolute;
+		top: 10px;
+		right: 12px;
+		width: 40px;
+		height: 40px;
+		border-radius: 9999px;
+		border: 1px solid var(--outline-sub);
+		background: var(--card-high);
+		color: var(--text);
+		cursor: pointer;
+		font-size: 24px;
+		line-height: 1;
+	}
+
+	.confirm-container {
+		max-width: 800px;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	:global(.confirm-card) {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	.header-area {
+		text-align: center;
+		margin-bottom: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	.page-title {
+		margin: 0 0 0.5rem 0;
+		color: var(--text);
+		font-size: 1.5rem;
+	}
+
+	.page-subtitle {
+		color: var(--text-sub);
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.flex-grow-card {
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+		padding-bottom: 0;
+	}
+
+	.list-wrapper {
+		flex: 1;
+		overflow-y: auto;
+		padding-bottom: 24px;
+	}
+
+	.request_footer {
+		display: flex;
+		justify-content: center;
+		gap: 24px;
+		margin-top: 0;
+		padding-bottom: 0;
+		flex-shrink: 0;
+	}
+
+	.btn-area {
+		flex: 1;
+		max-width: 200px;
 	}
 </style>
