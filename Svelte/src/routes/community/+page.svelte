@@ -3,6 +3,7 @@
 	import { Title, Button } from '$lib';
 	import LoginForm from '$lib/features/community/LoginForm.svelte';
 	import LogonForm from '$lib/features/community/LogonForm.svelte';
+	import LoginConfirm from '$lib/features/community/LoginConfirm.svelte';
 
 	let state = "none";
 
@@ -31,16 +32,21 @@
 {:else if state === "login"}
   <LoginForm on:back={() => (state = 'none')}/>
 {:else if state === "create"}
-	<LogonForm on:back={() => (state = 'none')} />
+	<LogonForm 
+      on:back={() => (state = 'none')} 
+      on:confirm={() => (state = 'confirm')} 
+  	/>
+{:else if state === "confirm"}
+  	<LoginConfirm on:back={() => (state = 'none')} />
 {/if}
 
 <style>
 	.btn-container {
 		display: flex;
-    flex-direction: column;
+    	flex-direction: column;
 		justify-content: center;
 		align-items: center;
-    gap: 1rem;
+    	gap: 1rem;
 	}
 	.btn-area {
 		flex: 1;
