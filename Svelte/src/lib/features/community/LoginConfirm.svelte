@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, createEventDispatcher } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { login } from '$lib/stores/auth';
   import { Button } from '$lib';
 
@@ -71,7 +70,7 @@
 				login(sessionStorage.getItem('selectedCommunityId') || '');
 			} catch (e) {}
 
-			goto('/community/community_Login/account');
+			dispatch('complete');
 		} catch (e) {
 			console.error(e);
 			alert(e instanceof Error ? e.message : 'コミュニティ作成エラー');

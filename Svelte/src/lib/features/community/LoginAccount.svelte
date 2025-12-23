@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { onMount, createEventDispatcher } from 'svelte';
 	import { Title, Surface, Button } from '$lib';
+	import { goto } from '$app/navigation';
 
 	let id = '';
 	let name = '';
@@ -9,6 +9,7 @@
 	let isLoading = false;
 	let error = '';
 	const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+	const dispatch = createEventDispatcher();
 
 	onMount(() => {
 		try {
@@ -88,13 +89,13 @@
 		goto('/community/community_Login/edit');
 	}
 	function toDestroy() {
-		goto('/community/community_Login/destroy/confirm');
+		dispatch('destroy');
 	}
 	function toNearby() {
-		goto('/community/community_Login/nearby');
+		goto('/community/nearby');
 	}
 	function toRequest() {
-		goto('/community/community_Login/request');
+		dispatch('request');
 	}
 	function doLogout() {
 		if (!confirm('ログアウトしますか？')) return;
@@ -110,7 +111,7 @@
 		id = '';
 		name = '';
 		count = null;
-		goto('/community');
+		dispatch('back');
 	}
 </script>
 
