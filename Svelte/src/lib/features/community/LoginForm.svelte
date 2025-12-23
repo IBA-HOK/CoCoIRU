@@ -3,6 +3,8 @@
   import { login as authLogin } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
 
+  import { Button } from '$lib';
+
   let communityId = '';
   let password = '';
   let error = '';
@@ -77,10 +79,8 @@
     {/if}
 
     <div class="actions">
-      <button class="btn" type="button" on:click={() => dispatch('back')}>戻る</button>
-      <button class="btn primary" type="button" on:click={submit} disabled={isSubmitting}>
-        {isSubmitting ? '処理中...' : 'ログイン'}
-      </button>
+      <Button text="戻る" variant="secondary" size="small" on:click={() => dispatch('back')} />
+      <Button text="ログイン" variant="primary" size="small" on:click={submit}/>
     </div>
   </section>
 </main>
@@ -90,7 +90,5 @@
   label { display:block; margin-bottom:0.75rem }
   input[type="text"], input[type="password"] { width:100%; padding:0.5rem; border:1px solid var(--outline-sub); border-radius:4px; background: transparent; color: inherit }
   .actions { display:flex; gap:0.75rem; margin-top:1rem }
-  .btn { padding:0.5rem 0.75rem; border-radius:6px; border:1px solid var(--outline); background: var(--card-high); color: var(--text); cursor:pointer }
-  .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary) }
   .error { color: var(--error); margin-top:0.5rem }
 </style>
