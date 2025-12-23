@@ -1,25 +1,90 @@
 <script lang="ts">
   import { Title, Surface, Button } from '$lib';
+  import { getToken, communityId } from '$lib/stores/auth';
+  import { get } from 'svelte/store';
 
   let itemName = '';
   let unit = '個';
   let reason = '';
   let message = '';
 
-  function submit() {
-    if (!itemName.trim()) {
-      message = '物品名を入力してください';
-      return;
+  const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+
+async function submit() {
+  message = '';
+
+  if (!itemName.trim()) {
+    message = '物品名を入力してください';
+    return;
+  }
+
+  // ★ リクエスト直前に毎回トークンを読む
+  // getToken が "Bearer xxx" を返す実装でも安全にする
+  const raw = getToken() || '';
+  const bearer = raw.replace(/^Bearer\s+/i, '').trim(); // Bearer二重対策
+
+  // community_id は store から取る（取れなければ 1 にフォールバック）
+  const cid = get(communityId) ?? 1;
+
+  const payload = {
+    community_id: cid,
+    item_name: itemName,
+    item_unit: unit,
+    reason,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    // ① まず cookie 認証で試す
+    let res = await fetch(`${API_BASE}/api/v1/item_addition_requests/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    // ② cookieでダメなら Bearer を付けて再挑戦
+    if (!res.ok) {
+      if (!bearer) {
+        const txt = await res.text().catch(() => '');
+        message =
+          'ログインが必要です（トークンがありません）。communityログイン後に再度申請してください。' +
+          (txt ? ` / ${txt}` : '');
+        return;
+      }
+
+      // ★ 再挑戦の直前にも念のためもう一回読む（更新されるケース対策）
+      const raw2 = getToken() || '';
+      const bearer2 = raw2.replace(/^Bearer\s+/i, '').trim();
+
+      res = await fetch(`${API_BASE}/api/v1/item_addition_requests/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${bearer2 || bearer}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
     }
 
-    console.log({ itemName, unit, reason });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(txt || `HTTP ${res.status}`);
+    }
 
     message = '申請物品項目を送信しました（承認待ち）';
 
     itemName = '';
     unit = '個';
     reason = '';
+  } catch (e: any) {
+    message = `送信に失敗しました：${e?.message ?? e}`;
   }
+}
+
+
+
 </script>
 
 <Title titleText="申請物品項目 追加申請" />
