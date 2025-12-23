@@ -12,6 +12,7 @@
 		.filter((r: any) => r.status === 'pending')
 		.reduce((sum: number, r: any) => sum + (r.number || 0), 0);
 	$: unit = requests.length > 0 && requests[0].unit ? requests[0].unit : '';
+	
 	const dispatch = createEventDispatcher();
 
 	function close() {
@@ -26,6 +27,11 @@
 			close();
 		}
 	}
+
+	// RequestTableからアイテム名クリックイベントを受け取る
+  function handleTableCommunityClick(event: CustomEvent) {
+    dispatch('communityClick', event.detail);
+  }
 </script>
 
 {#if show}
@@ -52,7 +58,11 @@
 					</p>
 				</div>
 
-				<RequestTable {requests} viewMode="item" />
+				<RequestTable
+          {requests}
+          viewMode="item"
+          on:communityClick={handleTableCommunityClick}
+        />
 			</div>
 		</div>
 	</div>

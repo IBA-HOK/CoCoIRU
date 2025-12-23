@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import { goto } from '$app/navigation';
     import { invalidateAll } from '$app/navigation';
     import { getToken } from '$lib/stores/auth';
@@ -23,6 +24,7 @@
     // ------------------------------------
     export let requests: RequestItem[] = [];
     export let viewMode: 'community' | 'item'; // 表示モード切り替え用
+    const dispatch = createEventDispatcher();
 
     // ------------------------------------
     // 状態管理: ソート
@@ -89,7 +91,6 @@
             default: return status;
         }
     }
-
     const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
     async function handleAction(req: RequestItem) {
@@ -147,13 +148,15 @@
         }
     }
 
-    function handleCommunityClick(communityId: number) {
-        goto(`/government/requestlist/community/${communityId}`);
+    // ページ遷移(goto)をやめて、イベント(dispatch)を発火する
+    function handleCommunityClick(communityId: number, communityName: string | null) {
+        dispatch('communityClick', { id: communityId, name: communityName || '不明なコミュニティ' });
     }
 
+    // ページ遷移(goto)をやめて、イベント(dispatch)を発火する
     function handleItemClick(itemName: string | null) {
         if (itemName) {
-            goto(`/government/requestlist/item/${encodeURIComponent(itemName)}`);
+            dispatch('itemClick', { name: itemName });
         }
     }
 </script>
@@ -210,10 +213,10 @@
                 {:else}
                     <td 
                         class="community-link" 
-                        on:click={() => handleCommunityClick(req.community_id)}
+                        on:click={() => handleCommunityClick(req.community_id, req.community_name)}
                         role="button" 
                         tabindex="0"
-                        on:keydown={(e) => e.key === 'Enter' && handleCommunityClick(req.community_id)}
+                        on:keydown={(e) => e.key === 'Enter' && handleCommunityClick(req.community_id, req.community_name)}
                     >
                         {req.community_name || '不明なコミュニティ'}
                     </td>

@@ -12,6 +12,7 @@
 	interface RequestItem {
 		request_id: number;
 		community_id: number;
+		request_content_id: number;
 		status: string; // 'pending' | 'processing' | 'completed'
 		created_at: string | null; // null許容
 
@@ -214,8 +215,17 @@
 		selectedItemRequests = allRequests.filter(
 			(req) => (req.item_name || '不明な品目') === itemName
 		);
-
+		showCommunityModal = false;
 		showItemModal = true;
+	}
+
+	function handleModalItemClick(event: CustomEvent) {
+		const { name } = event.detail;
+		openItemModal(name);
+	}
+	function handleModalCommunityClick(event: CustomEvent) {
+		const { id, name } = event.detail;
+		openCommunityModal(id, name);
 	}
 
 	// --- Communityのモーダル ---
@@ -224,13 +234,14 @@
 	let selectedCommunityRequests: RequestItem[] = [];
 	let selectedMemberCount: number | null = null;
 	let selectedSpecialNotes: string | null = null;
+	
 	function openCommunityModal(communityId: number, communityName: string) {
-		selectedCommunityName = communityName;
+    selectedCommunityName = communityName;
+    selectedCommunityRequests = allRequests.filter((req) => req.community_id === communityId);
 
-		selectedCommunityRequests = allRequests.filter((req) => req.community_id === communityId);
-
-		showCommunityModal = true;
-	}
+    showItemModal = false;
+    showCommunityModal = true;
+  }
 </script>
 
 <div class="request-list-container">
@@ -345,6 +356,7 @@
 	bind:show={showItemModal}
 	itemName={selectedItemName}
 	requests={selectedItemRequests}
+	on:communityClick={handleModalCommunityClick}
 />
 
 <CommunityDetailModal
@@ -353,6 +365,7 @@
 	memberCount={selectedMemberCount}
 	specialNotes={selectedSpecialNotes}
 	requests={selectedCommunityRequests}
+	on:itemClick={handleModalItemClick}
 />
 
 <style>
