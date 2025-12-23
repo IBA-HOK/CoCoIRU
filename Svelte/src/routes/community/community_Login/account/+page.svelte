@@ -94,7 +94,7 @@
 		goto('/community/community_Login/nearby');
 	}
 	function toRequest() {
-		goto('/community/community_Login/request');
+		goto('/community/request');
 	}
 	function doLogout() {
 		if (!confirm('ログアウトしますか？')) return;

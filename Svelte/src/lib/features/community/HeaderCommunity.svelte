@@ -37,7 +37,8 @@
   const navLinks = [
     { href: '/community/community_Login/login', label: 'ログイン' },
     { href: '/community/request', label: '支援物資申請' },
-    { href: '/community/addItemRequest', label: '品目追加申請' }
+    { href: '/community/addItemRequest', label: '品目追加申請' },
+    { href: '/community/nearby', label: '近隣マップ'}
   ];
 
 	$: isActive = (path: string) => $page.url.pathname.startsWith(path);
@@ -77,6 +78,13 @@
       class:active={isActive('/community/addItemRequest')}
     >
       品目追加申請
+    </a>
+    <a 
+      href="/community/nearby" 
+      class="nav-item" 
+      class:active={isActive('/community/nearby')}
+    >
+      近隣マップ
     </a>
   </nav>
 </header>
