@@ -83,7 +83,7 @@
 
   // 完了後の動作: トップページへ戻る
   function toTop() {
-    dispatch('none');
+    dispatch('complete');
   }
 </script>
 

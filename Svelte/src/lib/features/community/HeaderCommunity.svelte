@@ -35,7 +35,7 @@
 	}
 
   const navLinks = [
-    { href: '/community/community_Login/login', label: 'ログイン' },
+    { href: '/community', label: 'ログイン' },
     { href: '/community/request', label: '支援物資申請' },
     { href: '/community/addItemRequest', label: '品目追加申請' },
     { href: '/community/nearby', label: '近隣マップ'}
@@ -59,9 +59,9 @@
   <!-- デスクトップ用ナビゲーション -->
   <nav class="main-nav desktop-only">
     <a 
-      href="/community/community_Login/login" 
+      href="/community" 
       class="nav-item" 
-      class:active={isActive('/community/community_Login')}
+      class:active={isActive('/community')}
     >
       ログイン
     </a>
