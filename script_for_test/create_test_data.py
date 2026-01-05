@@ -230,6 +230,7 @@ def main():
         {"notes_content_json": json.dumps({"note": "車椅子利用者あり"}), "created_at": datetime.now().isoformat()},
         {"notes_content_json": json.dumps({"note": "乳幼児が多い"}), "created_at": datetime.now().isoformat()},
         {"notes_content_json": json.dumps({"note": "高齢者が多い"}), "created_at": datetime.now().isoformat()},
+        {"notes_content_json": json.dumps({"note": "大学生が多い"}), "created_at": datetime.now().isoformat()},
     ]
     special_notes_ids = create_special_notes(gov_token, special_notes_data)
     print()
@@ -274,6 +275,14 @@ def main():
             "member_count": 51,
             "created_at": datetime.now().isoformat()
         },
+        {
+            "name": "名城大学避難所",
+            "password": "community005",
+            "latitude": 35.136,
+            "longitude": 136.976,
+            "member_count": 30,
+            "created_at": datetime.now().isoformat()
+        },
     ]
     communities = create_communities(member_ids, communities_data)
     community_ids = [c["community_id"] for c in communities]
@@ -306,6 +315,7 @@ def main():
         {"items_id": items_ids[5], "number": 50, "other_note": None, "created_at": datetime.now().isoformat()},
         {"items_id": items_ids[2], "number": 150, "other_note": None, "created_at": datetime.now().isoformat()},
         {"items_id": items_ids[6], "number": 20, "other_note": None, "created_at": datetime.now().isoformat()},
+        {"items_id": items_ids[8], "number": 10, "other_note": None, "created_at": datetime.now().isoformat()},
         {"items_id": items_ids[9], "number": 100, "other_note": None, "created_at": datetime.now().isoformat()},
     ]
     request_content_ids = create_request_contents(gov_token, items_ids, request_contents_data)
@@ -322,6 +332,7 @@ def main():
         {"community_id": community_ids[2], "request_content_id": request_content_ids[5], "status": "pending", "created_at": datetime.now().isoformat()},
         {"community_id": community_ids[3], "request_content_id": request_content_ids[6], "status": "pending", "created_at": datetime.now().isoformat()},
         {"community_id": community_ids[3], "request_content_id": request_content_ids[7], "status": "approved", "created_at": datetime.now().isoformat()},
+        {"community_id": community_ids[4], "request_content_id": request_content_ids[8], "status": "approved", "created_at": datetime.now().isoformat()},
     ]
     support_request_ids = create_support_requests(gov_token, community_ids, request_content_ids, support_requests_data)
     print()
@@ -332,6 +343,7 @@ def main():
         {"latitude": 35.7536, "longitude": 139.7136, "notes": "体育館、収容人数200人", "created_at": datetime.now().isoformat()},
         {"latitude": 35.6762, "longitude": 139.7649, "notes": "小学校、収容人数150人", "created_at": datetime.now().isoformat()},
         {"latitude": 35.6580, "longitude": 139.7016, "notes": "公民館、収容人数100人", "created_at": datetime.now().isoformat()},
+        {"latitude": 35.0809, "longitude": 136.5833, "notes": "体育館、収容人数1000人", "created_at": datetime.now().isoformat()},
     ]
     shelter_info_ids = create_shelter_info(gov_token, shelter_info_data)
     print()
