@@ -52,6 +52,7 @@
     on:request={() => (state = 'request')}
     on:destroy={() => (state = 'destroy')}
     on:edit={() => (state = 'edit')}
+    on:back={() => (state = 'none')}
   />
 {:else if state === "destroy"}
   <ComDestroy
