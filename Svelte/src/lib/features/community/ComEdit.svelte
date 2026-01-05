@@ -87,6 +87,38 @@
 
 		isSubmitting = true;
 		try {
+			// 1) validate credentials via API
+			const payload = {
+				user_type: 'community',
+				community_id: Number(communityId),
+				password
+			};
+
+			const vres = await fetch(`${API_BASE}/api/v1/validate/validate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			if (!vres.ok) {
+				const d = await vres.json().catch(() => ({}));
+				throw new Error(d.detail || `Validation failed (${vres.status})`);
+			}
+
+			const vdata = await vres.json();
+			if (!vdata.valid) {
+				throw new Error('パスワードが正しくありません');
+			}
+
+			// 2) login to get HttpOnly cookie (server sets cookie). include credentials.
+			await fetch(`${API_BASE}/api/v1/login/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+				body: JSON.stringify(payload)
+			});
+
+			// 3) call update endpoint with credentials included so server sees the cookie
 			const body = {
 				name: name || '',
 				password: password || '',
