@@ -31,7 +31,7 @@
 	/>
 	<FeatureCard
 		href="/government/addItem"
-		titleText="支援要請一覧"
+		titleText="申請物品項目 受諾 / 拒否"
 		descriptionText="申請物品として追加が求められている項目を確認します。"
 		linkText="→ 詳細を見る"
 	/>
