@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
   import { login as authLogin } from '$lib/stores/auth';
-  import { goto } from '$app/navigation';
 
   import { Button } from '$lib';
 
@@ -51,7 +50,7 @@
       try { sessionStorage.setItem('selectedCommunityId', id); } catch (e) {}
       try { authLogin(id); } catch (e) {}
 
-      goto('/community/community_Login/account');
+      dispatch('success');
     } catch (e) {
       console.error(e);
       error = e instanceof Error ? e.message : 'ログインエラー';

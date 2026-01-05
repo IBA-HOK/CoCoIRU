@@ -36,7 +36,7 @@
     </div>
   </div>
 {:else if state === "login"}
-  <LoginForm on:back={() => (state = 'none')}/>
+  <LoginForm on:back={() => (state = 'none')} on:success={() => (state = 'account')}/>
 {:else if state === "create"}
 	<LogonForm 
     on:back={() => (state = 'none')} 
