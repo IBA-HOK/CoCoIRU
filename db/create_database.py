@@ -100,6 +100,19 @@ def create_database_with_all_tables():
         );
         """)
 
+        # --- 新規: 物品追加申請テーブル (ItemAdditionRequests) - Communities に依存 ---
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ItemAdditionRequests (
+            AddReq_id INTEGER PRIMARY KEY,
+            Community_id INTEGER NOT NULL,
+            Item_name TEXT NOT NULL,
+            Item_unit TEXT,
+            Reason TEXT,
+            Timestamp TEXT NOT NULL,
+            FOREIGN KEY (Community_id) REFERENCES Communities (community_id)
+        );
+        """)
+
         # 7. (追加) 避難所テーブル (Shelter) - Shelter_info と Communities に依存
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Shelter (

@@ -3,7 +3,6 @@
 </script>
 
 <footer class="simple-footer">
-    
     <a href="/" class="logo-link">
       <img src="/src/lib/assets/CoCoIRU_logo.png" alt="CoCoIRU" class="footer-logo" />
     </a>
@@ -14,10 +13,10 @@
   .simple-footer {
     padding: 30px 20px;
     margin-top: auto;
-    
     display: flex;
     justify-content: center;
     align-items: center;
+		background-color: var(--bg);
   }
 
   /* ロゴのリンク */

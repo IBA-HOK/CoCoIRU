@@ -3,12 +3,12 @@
   import { requestItems } from '$lib/features/request/requestItems';
   import RequestItemCard from './RequestItemCard.svelte';
 
-  const dispatch = createEventDispatcher();
+  // const dispatch = createEventDispatcher();
 
   // 追加ボタンが押されたことを親に通知する関数
-  function handleAddClick() {
-    dispatch('addClick');
-  }
+  // function handleAddClick() {
+  //   dispatch('addClick');
+  // }
 </script>
 
 <div class="button-grid">
@@ -16,10 +16,11 @@
     <RequestItemCard {item} />
   {/each}
 
-  <RequestItemCard 
+  <!-- 項目追加ボタン -->
+  <!-- <RequestItemCard 
     isAddButton={true} 
     on:click={handleAddClick} 
-  />
+  /> -->
 </div>
 
 <style>

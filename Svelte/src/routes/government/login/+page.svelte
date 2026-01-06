@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { govLogin } from '$lib/stores/auth';
+  import { govLogin, setToken } from '$lib/stores/auth';
 
   let username = 'gov_admin';
   let password = 'gov_admin_pass';
@@ -33,7 +33,12 @@
         throw new Error(detail.detail || 'ログインに失敗しました');
       }
 
+
       const data = await response.json();
+      // 保存: 開発用トークンフォールバック
+      if (data && data.access_token) {
+        try { setToken(data.access_token); } catch (e) {}
+      }
 
       // Gov login success
       govLogin({ username, role: 'gov' });
@@ -79,10 +84,6 @@
 </main>
 
 <style>
-  :global(body) {
-    background: #f4f7f9;
-  }
-
   .login-page {
     display: flex;
     justify-content: center;

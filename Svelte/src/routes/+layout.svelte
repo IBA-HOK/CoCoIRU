@@ -11,13 +11,13 @@
 <div class="page-wrapper">
 	<main class="main-content">
         <slot />
-    </main>
+  </main>
 	<Footer />
 </div>
 
 <style>
 	.page-wrapper {
-		/* height: 100vh; */
+		min-height: 100vh;
 		font-size: 1.0em;
 		background-color: var(--bg);
 		color: var(--text);

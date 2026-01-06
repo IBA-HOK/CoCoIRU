@@ -1,11 +1,16 @@
 <script lang="ts">
-	export let value: string = '';
+	//export let value: string = '';
+	import { requestNote } from '$lib/features/request/requestNoteStore';
 </script>
 
 <div class="note-input-container">
 	<label for="note-textarea" class="label">特記事項</label>
 	<div class="input-wrapper">
-		<textarea id="note-textarea" bind:value placeholder="ご要望があればご記入ください" rows="3"
+		<textarea 
+			id="note-textarea" 
+			bind:value={$requestNote}   
+			placeholder="ご要望があればご記入ください" 
+			rows="3"
 		></textarea>
 	</div>
 </div>
@@ -34,17 +39,20 @@
 		border: 1px solid var(--outline);
 
 		resize: none;
-		transition: all 0.2s ease;
+		
 		outline: none;
 		font-family: inherit;
 		color: var(--text);
 	}
 
-	textarea:focus {
-		background-color: var(--card);
-		border-color: var(--primary);
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary), transparent 85%);
+	textarea:focus,
+	textarea:focus-visible {
+		border-width: 2px; 
+  		background-color: var(--bg);
+  		box-shadow: none;
+  		outline: none;
 	}
+
 
 	textarea::placeholder {
 		color: var(--text-sub);

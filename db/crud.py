@@ -3,6 +3,7 @@ from db import models, schemas
 from typing import Type, TypeVar, Generic
 from pydantic import BaseModel
 import bcrypt
+from datetime import datetime, timezone, timedelta
 
 from db.session import engine
 from db import models
@@ -36,6 +37,33 @@ def update_db_item(db_item: models.Base, item_update: BaseModel):
             setattr(db_item, key, value)
     return db_item
 
+
+# --- Timestamp helpers ---
+def _now_iso():
+    # Japan Standard Time (UTC+9)
+    jst = timezone(timedelta(hours=9))
+    return datetime.now(jst).isoformat()
+
+
+def _apply_create_timestamps(db_obj: object):
+    """モデルに `created_at` 属性があれば、未設定時に現在時刻を入れる。"""
+    if hasattr(db_obj, "created_at"):
+        cur = getattr(db_obj, "created_at", None)
+        if not cur:
+            try:
+                setattr(db_obj, "created_at", _now_iso())
+            except Exception:
+                pass
+
+
+def _apply_update_timestamps(db_obj: object):
+    """モデルに `updated_at` 属性があれば更新時に現在時刻を入れる。"""
+    if hasattr(db_obj, "updated_at"):
+        try:
+            setattr(db_obj, "updated_at", _now_iso())
+        except Exception:
+            pass
+
 # --- 1. SpecialNotes ---
 
 def get_special_note(db: Session, special_notes_id: int):
@@ -46,6 +74,7 @@ def get_special_notes(db: Session, skip: int = 0, limit: int = 100):
 
 def create_special_note(db: Session, special_note: schemas.SpecialNotesCreate):
     db_special_note = models.SpecialNotes(**special_note.model_dump())
+    _apply_create_timestamps(db_special_note)
     db.add(db_special_note)
     db.commit()
     db.refresh(db_special_note)
@@ -55,6 +84,7 @@ def update_special_note(db: Session, special_notes_id: int, special_note_update:
     db_item = get_special_note(db, special_notes_id)
     db_item = update_db_item(db_item, special_note_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -76,6 +106,7 @@ def get_items(db: Session, skip: int = 0, limit: int = 100):
 
 def create_item(db: Session, item: schemas.ItemsCreate):
     db_item = models.Items(**item.model_dump())
+    _apply_create_timestamps(db_item)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -85,6 +116,7 @@ def update_item(db: Session, item_id: int, item_update: schemas.ItemsCreate):
     db_item = get_item(db, item_id)
     db_item = update_db_item(db_item, item_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -106,6 +138,7 @@ def get_shelter_infos(db: Session, skip: int = 0, limit: int = 100):
 
 def create_shelter_info(db: Session, shelter_info: schemas.ShelterInfoCreate):
     db_shelter_info = models.ShelterInfo(**shelter_info.model_dump())
+    _apply_create_timestamps(db_shelter_info)
     db.add(db_shelter_info)
     db.commit()
     db.refresh(db_shelter_info)
@@ -115,6 +148,7 @@ def update_shelter_info(db: Session, shelter_info_id: int, shelter_info_update: 
     db_item = get_shelter_info(db, shelter_info_id)
     db_item = update_db_item(db_item, shelter_info_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -136,6 +170,7 @@ def get_members(db: Session, skip: int = 0, limit: int = 100):
 
 def create_member(db: Session, member: schemas.MembersCreate):
     db_member = models.Members(**member.model_dump())
+    _apply_create_timestamps(db_member)
     db.add(db_member)
     db.commit()
     db.refresh(db_member)
@@ -145,6 +180,7 @@ def update_member(db: Session, member_id: int, member_update: schemas.MembersCre
     db_item = get_member(db, member_id)
     db_item = update_db_item(db_item, member_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -178,6 +214,7 @@ def get_supported_items(db: Session):
 
 def create_request_content(db: Session, request_content: schemas.RequestContentCreate):
     db_request_content = models.RequestContent(**request_content.model_dump())
+    _apply_create_timestamps(db_request_content)
     db.add(db_request_content)
     db.commit()
     db.refresh(db_request_content)
@@ -187,6 +224,7 @@ def update_request_content(db: Session, request_content_id: int, request_content
     db_item = get_request_content(db, request_content_id)
     db_item = update_db_item(db_item, request_content_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -219,6 +257,7 @@ def create_community(db: Session, community: schemas.CommunitiesCreate):
     community_dict["credential_id"] = db_credential.credential_id
     
     db_community = models.Communities(**community_dict)
+    _apply_create_timestamps(db_community)
     db.add(db_community)
     db.commit()
     db.refresh(db_community)
@@ -228,6 +267,7 @@ def update_community(db: Session, community_id: int, community_update: schemas.C
     db_item = get_community(db, community_id)
     db_item = update_db_item(db_item, community_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -249,6 +289,7 @@ def get_shelters(db: Session, skip: int = 0, limit: int = 100):
 
 def create_shelter(db: Session, shelter: schemas.ShelterCreate):
     db_shelter = models.Shelter(**shelter.model_dump())
+    _apply_create_timestamps(db_shelter)
     db.add(db_shelter)
     db.commit()
     db.refresh(db_shelter)
@@ -258,6 +299,7 @@ def update_shelter(db: Session, shelter_id: int, shelter_update: schemas.Shelter
     db_item = get_shelter(db, shelter_id)
     db_item = update_db_item(db_item, shelter_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -279,6 +321,7 @@ def get_support_requests(db: Session, skip: int = 0, limit: int = 100):
 
 def create_support_request(db: Session, support_request: schemas.SupportRequestCreate):
     db_support_request = models.SupportRequest(**support_request.model_dump())
+    _apply_create_timestamps(db_support_request)
     db.add(db_support_request)
     db.commit()
     db.refresh(db_support_request)
@@ -288,12 +331,49 @@ def update_support_request(db: Session, request_id: int, support_request_update:
     db_item = get_support_request(db, request_id)
     db_item = update_db_item(db_item, support_request_update)
     if db_item:
+        _apply_update_timestamps(db_item)
         db.commit()
         db.refresh(db_item)
     return db_item
 
 def delete_support_request(db: Session, request_id: int):
     db_item = get_support_request(db, request_id)
+    if db_item:
+        db.delete(db_item)
+        db.commit()
+    return db_item
+
+
+# --- 新規: ItemAdditionRequests (物品追加申請) ---
+def get_item_addition_request(db: Session, add_req_id: int):
+    return db.query(models.ItemAdditionRequests).filter(models.ItemAdditionRequests.add_req_id == add_req_id).first()
+
+
+def get_item_addition_requests(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.ItemAdditionRequests).offset(skip).limit(limit).all()
+
+
+def create_item_addition_request(db: Session, item_req: schemas.ItemAdditionRequestsCreate):
+    db_item_req = models.ItemAdditionRequests(**item_req.model_dump())
+    # timestamp はスキーマから受け取る想定。created_atヘルパーは該当しないためここではそのまま使用。
+    db.add(db_item_req)
+    db.commit()
+    db.refresh(db_item_req)
+    return db_item_req
+
+
+def update_item_addition_request(db: Session, add_req_id: int, item_req_update: schemas.ItemAdditionRequestsCreate):
+    db_item = get_item_addition_request(db, add_req_id)
+    db_item = update_db_item(db_item, item_req_update)
+    if db_item:
+        _apply_update_timestamps(db_item)
+        db.commit()
+        db.refresh(db_item)
+    return db_item
+
+
+def delete_item_addition_request(db: Session, add_req_id: int):
+    db_item = get_item_addition_request(db, add_req_id)
     if db_item:
         db.delete(db_item)
         db.commit()
@@ -309,6 +389,7 @@ def create_credential(db: Session, credential: schemas.CredentialCreate):
         hashed_password=hashed_pwd,
         created_at=credential.created_at
     )
+    _apply_create_timestamps(db_credential)
     db.add(db_credential)
     db.commit()
     db.refresh(db_credential)
@@ -362,6 +443,7 @@ def create_gov_user(db: Session, gov_user: schemas.GovUserCreate):
     gov_user_dict["credential_id"] = db_credential.credential_id
     
     db_gov_user = models.GovUser(**gov_user_dict)
+    _apply_create_timestamps(db_gov_user)
     db.add(db_gov_user)
     db.commit()
     db.refresh(db_gov_user)

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { login as authLogin } from '$lib/stores/auth';
+  import { login as authLogin, setToken } from '$lib/stores/auth';
 
   let communityId = '';
   let password = '';
@@ -44,10 +44,14 @@
       }
 
       // 成功: サーバーが HttpOnly Cookie をセットする
+      const data = await res.json().catch(() => (null));
+      if (data && data.access_token) {
+        try { setToken(data.access_token); } catch (e) {}
+      }
       try { sessionStorage.setItem('selectedCommunityId', id); } catch (e) {}
       try { authLogin(id); } catch (e) {}
 
-      goto('/community/account');
+      goto('/community/community_Login/account');
     } catch (e) {
       console.error(e);
       error = e instanceof Error ? e.message : 'ログインエラー';

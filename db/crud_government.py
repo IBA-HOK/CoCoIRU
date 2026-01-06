@@ -10,6 +10,7 @@ def get_dashboard_requests(db: Session):
     results = db.query(
         models.SupportRequest.request_id,
         models.SupportRequest.community_id,
+        models.SupportRequest.request_content_id,
         models.SupportRequest.status,
         models.SupportRequest.created_at,
         

@@ -15,6 +15,7 @@ router = APIRouter()
 class GovernmentRequestItem(BaseModel):
     request_id: int
     community_id: int
+    request_content_id: int
     status: str| None = None
     created_at: str| None = None
     

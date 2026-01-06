@@ -21,6 +21,9 @@
 		// 必要であれば親に通知（bindしているので必須ではないが、明示的なイベントが必要な場合）
 		// dispatch('toggleMode', isSelectionMode);
 	}
+	function handleRadiusInput() {
+		dispatch('radiusChange', searchRadiusKm);
+	}
 </script>
 
 <div class="sidebar-wrapper">
@@ -45,7 +48,7 @@
 		<h3>⭕ 検索範囲</h3>
 		<div class="input-group">
 			<label>半径 (km)</label>
-			<input type="number" bind:value={searchRadiusKm} step="0.1" />
+			<input type="number" bind:value={searchRadiusKm} step="0.1" on:change={handleRadiusInput}/>
 		</div>
 
 		<div class="mode-toggle">

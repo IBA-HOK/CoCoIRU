@@ -29,6 +29,12 @@
 		descriptionText="すべてのコミュニティの現在位置（避難所）と周辺情報を地図上で確認します。"
 		linkText="→ マップを見る"
 	/>
+	<FeatureCard
+		href="/government/addItem"
+		titleText="申請物品項目 受諾 / 拒否"
+		descriptionText="申請物品として追加が求められている項目を確認します。"
+		linkText="→ 詳細を見る"
+	/>
 </div>
 
 <style>

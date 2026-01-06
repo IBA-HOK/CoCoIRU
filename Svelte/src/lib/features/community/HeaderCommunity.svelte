@@ -1,9 +1,10 @@
 <script lang="ts">
   import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+  import { Hamburger } from '$lib';
 
 	/**
-	 * ホームボタン押下時の挙動:
+	 * ホームボタン押下時の挙動):
 	 * - ログイン情報は保持（何も消さない）
 	 * - 申請入力をリセットするためのフラグを sessionStorage にセット
 	 * - window に 'resetApplicationForm' カスタムイベントを dispatch
@@ -29,32 +30,61 @@
 			// sessionStorage 使えない場合はフォールバックで event のみ発火
 			window.dispatchEvent(new CustomEvent('resetApplicationForm'));
 		}
-
 		// SvelteKit の goto で遷移（クライアント側ルーティング）
 		goto('/');
 	}
+
+  const navLinks = [
+    { href: '/community', label: 'ログイン' },
+    { href: '/community/request', label: '支援物資申請' },
+    { href: '/community/addItemRequest', label: '品目追加申請' },
+    { href: '/community/nearby', label: '近隣マップ'}
+  ];
+
 	$: isActive = (path: string) => $page.url.pathname.startsWith(path);
 </script>
 
 <header class="main-header">
-  <a href="/" class="logo-link">
-    <span class="logo-text">コミュニティ</span>
+  
+  <!-- モバイル用ハンバーガーメニュー -->
+  <div class="mobile-only">
+    <Hamburger links={navLinks} />
+  </div>
+
+  <!-- タイトルロゴ -->
+  <a href="/community" class="logo-link">
+    <span class="logo-text">CoCoIRU コミュニティ</span>
   </a>
 
-  <nav class="main-nav">
+  <!-- デスクトップ用ナビゲーション -->
+  <nav class="main-nav desktop-only">
     <a 
       href="/community" 
       class="nav-item" 
-      class:active={isActive('/community/')}
+      class:active={isActive('/community')}
     >
-      トップに戻る
+      ログイン
     </a>
     <a 
       href="/community/request" 
       class="nav-item" 
       class:active={isActive('/community/request')}
     >
-      申請画面
+      支援物資申請
+    </a>
+    <a 
+      href="/community/addItemRequest" 
+      class="nav-item" 
+      class:active={isActive('/community/addItemRequest')}
+    >
+      品目追加申請
+    </a>
+    <a 
+      href="/community/nearby" 
+      class="nav-item" 
+      class:active={isActive('/community/nearby')}
+    >
+      近隣マップ
     </a>
   </nav>
 </header>
@@ -68,16 +98,9 @@
     align-items: center;
   }
 
-  /* ロゴのリンク */
-  .logo-img img {
-    height: 40px;
-    width: auto;
-  }
-
   .logo-link {
     text-decoration: none;
     color: var(--on-primary);
-    margin-right: 40px;
     font-size: 1.4em;
     font-weight: bold;
     transition: opacity 0.2s;
@@ -124,5 +147,25 @@
     height: 3px;
     background-color: var(--on-primary);
     border-radius: 2px;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  /* スマホサイズ(768px以下)のとき */
+  @media (max-width: 768px) {
+    .desktop-only {
+      display: none;
+    }
+    
+    .mobile-only {
+      display: block;
+    }
+    
+    .main-header {
+      padding: 15px 20px;
+      justify-content: space-between;
+    }
   }
 </style>

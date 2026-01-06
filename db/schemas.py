@@ -147,6 +147,24 @@ class GovUser(GovUserBase):
     credential_id: int
     model_config = orm_config
 
+
+# --- 新規: ItemAdditionRequests (物品追加申請) ---
+class ItemAdditionRequestsBase(BaseModel):
+    community_id: Optional[int] = None
+    item_name: Optional[str] = None
+    item_unit: Optional[str] = None
+    reason: Optional[str] = None
+    timestamp: Optional[str] = None
+
+class ItemAdditionRequestsCreate(ItemAdditionRequestsBase):
+    community_id: int
+    item_name: str
+    timestamp: str
+
+class ItemAdditionRequests(ItemAdditionRequestsBase):
+    add_req_id: int
+    model_config = orm_config
+
 # --- 10. Auth / Token ---
 class TokenRequest(BaseModel):
     user_type: str  # "community" または "gov"
@@ -159,3 +177,12 @@ class TokenResponse(BaseModel):
     token_type: str
     expires_in: int
     role: str  # "community" または "gov"
+
+class ValidationRequest(BaseModel):
+    user_type: str  # "community" または "gov"
+    username: Optional[str] = None  # gov用
+    community_id: Optional[int] = None  # community用
+    password: str
+
+class ValidationResponse(BaseModel):
+    valid: bool

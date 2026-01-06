@@ -13,6 +13,8 @@
 
   const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
+  import { setToken } from '$lib/stores/auth';
+
   async function handleLogin(event: SubmitEvent) {
     event.preventDefault();
     isSubmitting = true;
@@ -48,6 +50,9 @@
 
       const data = await response.json();
       loginResponse = data;
+      if (data && data.access_token) {
+        try { setToken(data.access_token); } catch (e) {}
+      }
       isLoggedIn = true;
       
       // ログイン成功後、ユーザー情報を取得
@@ -268,10 +273,6 @@ allow_origins=["http://localhost:5173"]
 </main>
 
 <style>
-  :global(body) {
-    background: #f4f7f9;
-  }
-
   .login-page {
     display: grid;
     gap: 2rem;

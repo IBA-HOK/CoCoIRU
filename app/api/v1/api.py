@@ -11,9 +11,11 @@ from app.api.v1.endpoints import (
     gnss,
     login,
     token,
-    government
-    ,public_items
+    government,
+    public_items,
+    validate
 )
+from app.api.v1.endpoints import item_addition_requests
 
 api_router = APIRouter()
 
@@ -44,3 +46,9 @@ api_router.include_router(government.router, prefix="/government", tags=["Govern
 
 # 13. Public endpoints (認証不要)
 api_router.include_router(public_items.router, prefix="/public", tags=["Public"])
+
+# 14. Validation
+api_router.include_router(validate.router, prefix="/validate", tags=["Validation"])
+
+# 15. Item Addition Requests
+api_router.include_router(item_addition_requests.router, prefix="/item_addition_requests", tags=["Item Addition Requests"])

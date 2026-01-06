@@ -38,6 +38,15 @@ APIサーバを起動します。
 cd Svelte
 npm run api
 ```
+ルートでデータベースの初期化をします。(初回)
+(必要ならデータベースを削除してください)。
+```bash
+python db/create_database.py
+```
+テストデータを作成します。(初回)
+```bash
+python script_for_test/create_test_data.py
+```
 必要なPythonパッケージがインストールされていない場合は適宜インストールしてください。
 ```bash
 pip install -r requirements.txt

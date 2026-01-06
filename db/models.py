@@ -93,6 +93,8 @@ class Communities(Base):
     # 関連: Shelter, Support_Request から参照される
     shelters = relationship("Shelter", back_populates="community")
     support_requests = relationship("SupportRequest", back_populates="community")
+    # 関連: ItemAdditionRequests から参照される
+    item_addition_requests = relationship("ItemAdditionRequests", back_populates="community")
 
 # 7. Shelter (Shelter_info と Communities に依存)
 class Shelter(Base):
@@ -118,6 +120,20 @@ class SupportRequest(Base):
     # 関連: Communities と Request_content へ
     community = relationship("Communities", back_populates="support_requests")
     request_content = relationship("RequestContent", back_populates="support_request")
+
+
+# --- 新規: ItemAdditionRequests (物品追加申請テーブル) ---
+class ItemAdditionRequests(Base):
+    __tablename__ = "ItemAdditionRequests"
+    add_req_id = Column(Integer, primary_key=True, index=True)
+    community_id = Column(Integer, ForeignKey("Communities.community_id"), nullable=False)
+    item_name = Column(TEXT, nullable=False)
+    item_unit = Column(TEXT)
+    reason = Column(TEXT)
+    timestamp = Column(TEXT, nullable=False)
+
+    # 関連: Communities へ
+    community = relationship("Communities", back_populates="item_addition_requests")
 
 # 9. GovUser (Credential に依存)
 class GovUser(Base):

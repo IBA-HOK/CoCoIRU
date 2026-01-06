@@ -1,6 +1,8 @@
 <script lang="ts">
 	export let text = 'ボタンテキスト';
-	export let variant: 'primary' | 'secondary' | 'accent' = 'primary';
+	export let variant: 'primary' | 'secondary' | 'error' | 'accent' = 'primary';
+	// サイズ指定: 'small' | 'normal' | 'large'（デフォルトは 'normal'）
+	export let size: 'small' | 'normal' | 'large' = 'normal';
 
 	/**
 	 * @component Button
@@ -9,11 +11,12 @@
 	 * variant
 	 * - primary: メイン（緑）※デフォルト
 	 * - secondary: サブ/戻るボタン（グレー）
+	 * - error: エラーボタン（赤）
 	 * - accent: 強調/確定ボタン（紫）
-	 */	
+	 */
 </script>
 
-<button class={variant} on:click>
+<button class="{variant} {size}" on:click>
 	{text}
 </button>
 
@@ -32,22 +35,28 @@
 		font-size: 1.5rem;
 		cursor: pointer;
 		font-family: inherit;
-    
-    --btn-bg: var(--primary);
-    --btn-text: var(--on-primary);
-    background-color: var(--btn-bg);
-    color: var(--btn-text);
+
+		--btn-bg: var(--primary);
+		--btn-text: var(--on-primary);
+		background-color: var(--btn-bg);
+		color: var(--btn-text);
 	}
 
-  button.secondary {
-    --btn-bg: var(--outline-sub);
-    --btn-text: var(--text);
-  }
-  
-  button.accent {
-    --btn-bg: var(--accent);
-    --btn-text: var(--on-accent);
-  }
+	button.secondary {
+		--btn-bg: var(--outline-sub);
+		--btn-text: var(--text);
+	}
+
+	button.accent {
+		--btn-bg: var(--accent);
+		--btn-text: var(--on-accent);
+	}
+
+	/* エラーボタン用スタイル */
+	button.error {
+		--btn-bg: var(--error);
+		--btn-text: var(--on-error);
+	}
 
 	button:hover {
 		transform: translateY(-4px);
@@ -58,5 +67,18 @@
 	button:active {
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow), transparent 85%);
+	}
+
+	/* サイズバリエーション */
+	button.small {
+		flex: none;
+		width: auto;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.9rem;
+	}
+
+	button.large {
+		padding: 24px;
+		font-size: 1.75rem;
 	}
 </style>

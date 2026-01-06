@@ -16,6 +16,7 @@
 
 <style>
   .surface {
+    height: 100%;
     background-color: var(--card);
     border-radius: 16px;
     margin: 20px;
