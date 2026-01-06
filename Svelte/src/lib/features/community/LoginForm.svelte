@@ -63,7 +63,7 @@
 <main class="page" style="padding:1rem; display:flex; justify-content:center">
   <section class="card" style="max-width:480px; width:100%">
     <h2>コミュニティにログイン</h2>
-    <p>コミュニティIDとパスワードを入力してサーバー側で認証します。</p>
+    <p>コミュニティIDとパスワードを入力してください。</p>
 
     <label>コミュニティID
       <input type="text" bind:value={communityId} placeholder="例: 1" />
